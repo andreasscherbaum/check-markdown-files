@@ -1,0 +1,14 @@
+---
+title: "replace broken links"
+date: 2024-01-01T00:00:00+00:00
+draft: false
+authors: ads
+supresswarnings:
+- deleteme
+---
+
+This blog posting fixes broken links in texts, it handles both `http` and `https` links, as well as links ending with a slash (`/`) and without a slash.
+
+<!--more-->
+
+This text includes broken links pointing to [CyanogenMod](http://www.cyanogenmod.org) and http://www.cyanogenmod.org/, as well as https://www.cyanogenmod.org and https://www.cyanogenmod.org/.
