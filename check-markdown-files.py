@@ -120,10 +120,10 @@ class Config:
         # remaining arguments must be Markdown files
         for f in args.remainder:
             f = Path(f)
-            if f.exists():
+            if not f.exists():
                 logging.error("File ({f}) does not exist!".format(f=f))
                 sys.exit(1)
-            if f.is_file():
+            if not f.is_file():
                 logging.error("Argument ({f}) is not a file!".format(f=f))
                 sys.exit(1)
             if not f.name.endswith('.md'):
