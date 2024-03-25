@@ -346,7 +346,7 @@ class Config:
             self.checks['forbidden_websites'] = config_data['forbidden_websites']
             for data in config_data['forbidden_websites']:
                 if (data.startswith('http') or '://' in data):
-                    logging.error("forbidden_websites: The link must not include the protocol!")
+                    logging.error("The link must not include the protocol!")
                     logging.error("Link: {o}".format(o = data))
                     sys.exit(1)
 
