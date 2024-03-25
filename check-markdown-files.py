@@ -72,25 +72,28 @@ class Config:
         if (self.output_help is True):
             self.argument_parser.print_help()
 
-
-    def find_configfile(self, this_dir: Path) -> Optional[Path]:
+    def find_configfile(self, this_dir: Optional[Path] = None) -> Optional[Path]:
         """
         Searches for ``check-markdown-files.conf`` tree-upwards,
         starting in ``this_dir``, stops when it finds a ``.git`` directory or reaches ``/``.
+        If ``this_dir`` is None, we start from ``os.getcwd()``.
 
         :returns: A ``Path`` to the config file, or ``None`` if no config file can be found.
         """
-        logging.debug("Checking {d} for configfile".format(d = this_dir))
+        if this_dir is None:
+            this_dir = os.getcwd()
+        logging.debug("Checking {d} for configfile".format(d=this_dir))
+
         this_dir = Path(this_dir)
         configname = Path("check-markdown-files.conf")
 
-        for d in [this_dir] + list(this_dir.parents):
-            this_file = (d/configname).resolve()
+        for d in [this_dir] + list(this_dir.parents):  # Check from the current dir upwards
+            this_file = (d / configname).resolve()
             if this_file.is_file():
                 logging.debug("Found configfile: {f}".format(f=this_file))
                 return this_file
 
-            this_git = d/ ".git"
+            this_git = d / ".git"
             if this_git.is_dir():
                 logging.debug("Found .git dir in {d}, stop searching for configfile".format(d=this_dir))
                 return None
@@ -145,7 +148,7 @@ class Config:
         else:
             # find existing configfile
             # https://git-scm.com/docs/githooks#_description
-            configfile = self.find_configfile(os.getcwd())
+            configfile = self.find_configfile()
             if (configfile is not None):
                 args.configfile = configfile
 
