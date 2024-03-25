@@ -73,7 +73,7 @@ class Config:
         parser = argparse.ArgumentParser(description='Check Markdown files before publishing blog postings',
                                          add_help=False)
         self.argument_parser = parser
-        parser.add_argument('--help', default=False, dest='help', action='store_true', help='show this help')
+        parser.add_argument('--help', '-h', default=False, dest='help', action='store_true', help='show this help')
         # store_true: store "True" if specified, otherwise store "False"
         # store_false: store "False" if specified, otherwise store "True"
         parser.add_argument('-v', '--verbose', default=False, dest='verbose', action='store_true', help='be more verbose')
@@ -86,6 +86,9 @@ class Config:
 
         # parse parameters
         args = parser.parse_args()
+        if args.help:
+            parser.print_help()
+            sys.exit(0)
 
         if args.verbose and args.quiet:
             parser.print_help()
