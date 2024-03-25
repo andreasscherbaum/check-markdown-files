@@ -538,7 +538,7 @@ def split_file_into_frontmatter_and_markdown(data, filename):
         logging.error("File: {f}".format(f = filename))
         sys.exit(1)
 
-    parts = re.search(r'^\-\-\-\n(.*?)\n\-\-\-\n(.*)$', data, re.DOTALL)
+    parts = re.search(r'^---\n(.*?)\n---\n(.*)$', data, re.DOTALL)
     if (not parts):
         logging.error("Can't extract Frontmatter from data!")
         logging.error("File: {f}".format(f = filename))
@@ -893,7 +893,7 @@ def check_lowercase_tags(config, data, filename, init_frontmatter):
         log_entries.append("Tags is not a list!")
         return data
 
-    allowed = re.compile(r'[^a-z0-9\-\._äöüß]')
+    allowed = re.compile(r'[^a-z0-9\-._äöüß]')
     for tag in tags:
         try:
             result = allowed.search(tag)
@@ -942,7 +942,7 @@ def check_lowercase_categories(config, data, filename, init_frontmatter):
         log_entries.append("Categories is not a list!")
         return data
 
-    allowed = re.compile(r'[^a-z0-9\-\._äöüß]')
+    allowed = re.compile(r'[^a-z0-9\-._äöüß]')
     for category in categories:
         try:
             result = allowed.search(category)
