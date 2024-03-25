@@ -132,16 +132,10 @@ class Config:
 
         return
 
-
-    # read_config()
-    #
-    # read the configfile (if given) and set config values
-    #
-    # parameter:
-    #  - self
-    # return:
-    #  none
-    def read_config(self):
+    def read_config(self) -> None:
+        """
+        Sanity check for the configuration file.
+        """
         # first set defaults
         # disable all checks here, as default
         self.checks['check_whitespaces_at_end'] = False
@@ -175,47 +169,53 @@ class Config:
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
-        # load configfile if one is specified
-        if (self.arguments.configfile):
-            with open(self.arguments.configfile, 'r') as configstream:
-                try:
-                    config_data = yaml.load(configstream, Loader = yaml.FullLoader)
-                except yaml.YAMLError as e:
-                    logging.error("Error loading configfile {c}: {e}".format(c = self.arguments.configfile, e = e))
-                    sys.exit(1)
+        if not self.arguments:
+            logging.error('Config: No arguments read.')
+            sys.exit(1)
+        # Invariant: self.arguments is not None
 
-            if (config_data is not None):
+        # load configfile if one is specified
+        config_data = {}
+        if self.config_contents:
+            try:
+                # TODO: We are using yaml.FullLoader here, because ...  -- for @andreasscherbaum to fill in.
+                config_data = yaml.load(self.config_contents, Loader=yaml.FullLoader)
+            except yaml.YAMLError as e:
+                logging.error("Error parsing configfile {c}: {e}".format(c=self.arguments.configfile, e=e))
+                sys.exit(1)
+
+            if config_data:
                 # find all existing keys from self.checks and parse them from the config
                 config_keys = list(self.checks.keys())
                 for key in config_keys:
-                    if (key in config_data):
+                    if key in config_data:
                         if type(config_data[key]) is bool:
                             self.checks[key] = config_data[key]
-                        elif (config_data[key] == "1" or config_data[key] == "y" or config_data[key] == "yes"):
+                        elif config_data[key] in ["1", "y", "yes"]:
                             self.checks[key] = True
-                        elif (config_data[key] == "0" or config_data[key] == "n" or config_data[key] == "no"):
+                        elif config_data[key] in ["0", "n", "no"]:
                             self.checks[key] = False
 
         # some config values need more config
 
         # broken links replacement needs a list of links
-        if (self.checks['do_replace_broken_links'] is True):
-            if ('broken_links' not in config_data):
+        if self.checks['do_replace_broken_links']:
+            if 'broken_links' not in config_data:
                 logging.error("'do_replace_broken_links' is activated, but 'broken_links' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['broken_links'], list)):
+            if not isinstance(config_data['broken_links'], list):
                 logging.error("'broken_links' must be a list!")
                 sys.exit(1)
             self.checks['broken_links'] = []
             for data in config_data['broken_links']:
-                if ('orig' in data and 'replace' in data):
-                    if (data['orig'].startswith('http') or '://' in data['orig']):
+                if 'orig' in data and 'replace' in data:
+                    if data['orig'].startswith('http') or '://' in data['orig']:
                         logging.error("The 'orig' link must not include the protocol!")
-                        logging.error("Link: {o}".format(o = data['orig']))
+                        logging.error("Link: {o}".format(o=data['orig']))
                         sys.exit(1)
-                    if ('://' not in data['replace']):
+                    if '://' not in data['replace']:
                         logging.error("The 'replace' link must include the protocol!")
-                        logging.error("Link: {o}".format(o = data['replace']))
+                        logging.error("Link: {o}".format(o=data['replace']))
                         sys.exit(1)
                     self.checks['broken_links'].append([data['orig'], data['replace']])
                 else:
@@ -223,112 +223,111 @@ class Config:
                     sys.exit(1)
 
         # missing tags needs a list of keywords and tags
-        if (self.checks['check_missing_tags'] is True):
-            if ('missing_tags' not in config_data):
+        if self.checks['check_missing_tags']:
+            if 'missing_tags' not in config_data:
                 logging.error("'check_missing_tags' is activated, but 'missing_tags' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['missing_tags'], list)):
+            if not isinstance(config_data['missing_tags'], list):
                 logging.error("'missing_tags' must be a list!")
                 sys.exit(1)
             self.checks['missing_tags'] = []
             for data in config_data['missing_tags']:
-                if ('word' in data and 'tag' in data):
+                if 'word' in data and 'tag' in data:
                     self.checks['missing_tags'].append([data['word'], data['tag']])
                 else:
                     logging.error("Both 'word' and 'tag' must be specified in 'missing_tags'!")
                     sys.exit(1)
 
-        # missing words as tags tags needs a list of words
-        if (self.checks['check_missing_words_as_tags'] is True):
-            if ('missing_words' not in config_data):
+        # missing words as tags needs a list of words
+        if self.checks['check_missing_words_as_tags']:
+            if 'missing_words' not in config_data:
                 logging.error("'check_missing_words_as_tags' is activated, but 'missing_words' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['missing_words'], list)):
+            if not isinstance(config_data['missing_words'], list):
                 logging.error("'missing_words' must be a list!")
                 sys.exit(1)
             self.checks['missing_words'] = config_data['missing_words']
 
         # tuple of tags where the second tag must exist if the first one is specified
-        if (self.checks['check_missing_other_tags_one_way'] is True):
-            if ('missing_other_tags_one_way' not in config_data):
+        if self.checks['check_missing_other_tags_one_way']:
+            if 'missing_other_tags_one_way' not in config_data:
                 logging.error("'check_missing_other_tags_one_way' is activated, but 'missing_other_tags_one_way' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['missing_other_tags_one_way'], list)):
+            if not isinstance(config_data['missing_other_tags_one_way'], list):
                 logging.error("'missing_other_tags_one_way' must be a list!")
                 sys.exit(1)
             self.checks['missing_other_tags_one_way'] = []
             for data in config_data['missing_other_tags_one_way']:
-                if ('tag1' in data and 'tag2' in data):
+                if 'tag1' in data and 'tag2' in data:
                     self.checks['missing_other_tags_one_way'].append([data['tag1'], data['tag2']])
                 else:
                     logging.error("Both 'tag1' and 'tag2' must be specified in 'missing_other_tags_one_way'!")
                     sys.exit(1)
 
         # tuple of tags where the both tags must exist if one is specified
-        if (self.checks['check_missing_other_tags_both_ways'] is True):
-            if ('missing_other_tags_both_ways' not in config_data):
+        if self.checks['check_missing_other_tags_both_ways']:
+            if 'missing_other_tags_both_ways' not in config_data:
                 logging.error("'check_missing_other_tags_both_ways' is activated, but 'missing_other_tags_both_ways' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['missing_other_tags_both_ways'], list)):
+            if not isinstance(config_data['missing_other_tags_both_ways'], list):
                 logging.error("'missing_other_tags_both_ways' must be a list!")
                 sys.exit(1)
             self.checks['missing_other_tags_both_ways'] = []
             for data in config_data['missing_other_tags_both_ways']:
-                if ('tag1' in data and 'tag2' in data):
+                if 'tag1' in data and 'tag2' in data:
                     self.checks['missing_other_tags_both_ways'].append([data['tag1'], data['tag2']])
                 else:
                     logging.error("Both 'tag1' and 'tag2' must be specified in 'missing_other_tags_both_ways'!")
                     sys.exit(1)
 
         # list of words which must be cursive
-        if (self.checks['check_missing_cursive'] is True):
-            if ('missing_cursive' not in config_data):
+        if self.checks['check_missing_cursive']:
+            if 'missing_cursive' not in config_data:
                 logging.error("'check_missing_cursive' is activated, but 'missing_cursive' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['missing_cursive'], list)):
+            if not isinstance(config_data['missing_cursive'], list):
                 logging.error("'missing_cursive' must be a list!")
                 sys.exit(1)
             self.checks['missing_cursive'] = config_data['missing_cursive']
 
         # list of words which are forbidden in postings
-        if (self.checks['check_forbidden_words'] is True):
-            if ('forbidden_words' not in config_data):
+        if self.checks['check_forbidden_words']:
+            if 'forbidden_words' not in config_data:
                 logging.error("'check_forbidden_words' is activated, but 'forbidden_words' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['forbidden_words'], list)):
+            if not isinstance(config_data['forbidden_words'], list):
                 logging.error("'forbidden_words' must be a list!")
                 sys.exit(1)
             self.checks['forbidden_words'] = config_data['forbidden_words']
 
         # list of websites which are forbidden in postings
-        if (self.checks['check_forbidden_websites'] is True):
-            if ('forbidden_websites' not in config_data):
+        if self.checks['check_forbidden_websites']:
+            if 'forbidden_websites' not in config_data:
                 logging.error("'check_forbidden_websites' is activated, but 'forbidden_websites' data is not specified!")
                 sys.exit(1)
-            if (not isinstance(config_data['forbidden_websites'], list)):
+            if not isinstance(config_data['forbidden_websites'], list):
                 logging.error("'forbidden_websites' must be a list!")
                 sys.exit(1)
             self.checks['forbidden_websites'] = config_data['forbidden_websites']
             for data in config_data['forbidden_websites']:
-                if (data.startswith('http') or '://' in data):
+                if data.startswith('http') or '://' in data:
                     logging.error("The link must not include the protocol!")
-                    logging.error("Link: {o}".format(o = data))
+                    logging.error("Link: {o}".format(o=data))
                     sys.exit(1)
 
         # maximum size for objects in the posting directory
-        if (self.checks['check_image_size'] is True):
-            if ('image_size' not in config_data):
+        if self.checks['check_image_size']:
+            if 'image_size' not in config_data:
                 logging.error("'check_image_size' is activated, but 'image_size' data is not specified!")
                 sys.exit(1)
             try:
                 self.checks['image_size'] = config_data['image_size'] = int(config_data['image_size'])
-                if (self.checks['image_size'] <= 0):
+                if self.checks['image_size'] <= 0:
                     logging.error("Image size must be greater zero!")
                     sys.exit(1)
             except ValueError:
                 logging.error("Image size ('image_size') is not an integer!")
                 sys.exit(1)
-
 
     def files(self):
         return self.arguments.remainder
@@ -338,12 +337,8 @@ class Config:
 #######################################################################
 
 
-
 #######################################################################
 # helper functions
-
-
-
 
 # handle_markdown_file()
 #
