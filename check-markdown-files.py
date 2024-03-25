@@ -7,11 +7,13 @@
 import os
 import sys
 import re
-import pathlib
+from pathlib import Path
 import shutil
 import logging
 import argparse
 from pprint import pprint
+from typing import Optional
+
 import yaml
 import requests
 
@@ -70,52 +72,40 @@ class Config:
         if (self.output_help is True):
             self.argument_parser.print_help()
 
+    def find_configfile(self, this_dir: Optional[Path] = None) -> Optional[Path]:
+        """
+        Searches for ``check-markdown-files.conf`` tree-upwards,
+        starting in ``this_dir``, stops when it finds a ``.git`` directory or reaches ``/``.
+        If ``this_dir`` is None, we start from ``os.getcwd()``.
 
-    # find_configfile()
-    #
-    # traverses up until it finds the configfile
-    #
-    # parameter:
-    #  - self
-    #  - directory name
-    # return:
-    #  - path of config file, or None
-    def find_configfile(self, this_dir):
-        logging.debug("Checking {d} for configfile".format(d = this_dir))
-        configname = "check-markdown-files.conf"
+        :returns: A ``Path`` to the config file, or ``None`` if no config file can be found.
+        """
+        if this_dir is None:
+            this_dir = os.getcwd()
+        logging.debug("Checking {d} for configfile".format(d=this_dir))
 
-        if (this_dir == '/'):
-            logging.error("Reached root directory, stopping search for configfile")
-            return None
+        this_dir = Path(this_dir)
+        configname = Path("check-markdown-files.conf")
 
-        this_file = os.path.realpath(os.path.join(this_dir, configname))
-        if (os.path.exists(this_file)):
-            # found the configfile
-            logging.debug("Found configfile: {f}".format(f = this_file))
-            return this_file
+        for d in [this_dir] + list(this_dir.parents):  # Check from the current dir upwards
+            this_file = (d / configname).resolve()
+            if this_file.is_file():
+                logging.debug("Found configfile: {f}".format(f=this_file))
+                return this_file
 
-        # see if a '.git' directory exists
-        if (os.path.exists(os.path.join(this_dir, '.git'))):
-            # there is a '.git', stop here and do not go up further
-            logging.debug("Found .git dir in {d}, stop searching for configfile".format(d = this_dir))
-            return None
+            this_git = d / ".git"
+            if this_git.is_dir():
+                logging.debug("Found .git dir in {d}, stop searching for configfile".format(d=this_dir))
+                return None
 
-        parent_dir = os.path.realpath(os.path.join(this_dir, '..'))
-        if (parent_dir == this_dir):
-            return None
-
-        return self.find_configfile(parent_dir)
+        logging.error("Reached root directory, stopping search for configfile")
+        return None
 
 
-    # parse_parameters()
-    #
-    # parse commandline parameters, fill in array with arguments
-    #
-    # parameter:
-    #  - self
-    # return:
-    #  none
-    def parse_parameters(self):
+    def parse_parameters(self) -> None:
+        """
+        parse commandline parameters, fill in array with arguments.
+        """
         parser = argparse.ArgumentParser(description = 'Check Markdown files before publishing blog postings',
                                          add_help = False)
         self.argument_parser = parser
@@ -158,7 +148,7 @@ class Config:
         else:
             # find existing configfile
             # https://git-scm.com/docs/githooks#_description
-            configfile = self.find_configfile(os.getcwd())
+            configfile = self.find_configfile()
             if (configfile is not None):
                 args.configfile = configfile
 
