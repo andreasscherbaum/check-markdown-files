@@ -12,18 +12,16 @@ import shutil
 import logging
 import argparse
 from pprint import pprint
-from typing import Optional
+from typing import Optional, Dict, Any
 
 import yaml
 import requests
 
 
 # start with 'info', can be overriden by '-q' later on
-logging.basicConfig(level = logging.INFO,
-		    format = '%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 log_entries = []
-
 
 
 #######################################################################
@@ -31,46 +29,13 @@ log_entries = []
 
 class Config:
 
-    def __init__(self):
-        self.__cmdline_read = 0
-        self.__configfile_read = 0
-        self.arguments = False
-        self.argument_parser = False
-        self.configfile = False
-        self.config = False
-        self.checks = {}
-        self.output_help = True
-
-
-    # config_help()
-    #
-    # flag if help shall be printed
-    #
-    # parameter:
-    #  - self
-    #  - True/False
-    # return:
-    #  none
-    def config_help(self, config):
-        if (config is False or config is True):
-            self.output_help = config
-        else:
-            print("")
-            print("invalid setting for config_help()")
-            sys.exit(1)
-
-
-    # print_help()
-    #
-    # print the help
-    #
-    # parameter:
-    #  - self
-    # return:
-    #  none
-    def print_help(self):
-        if (self.output_help is True):
-            self.argument_parser.print_help()
+    def __init__(self) -> None:
+        self.__cmdline_read: bool = False
+        self.arguments: Optional[argparse.Namespace] = None
+        self.argument_parser: Optional[argparse] = None
+        self.configfile: Optional[Path] = None
+        self.config_contents: Optional[str] = None
+        self.checks: Dict[str, Any] = {}
 
     def find_configfile(self, this_dir: Optional[Path] = None) -> Optional[Path]:
         """
@@ -101,72 +66,69 @@ class Config:
         logging.error("Reached root directory, stopping search for configfile")
         return None
 
-
     def parse_parameters(self) -> None:
         """
         parse commandline parameters, fill in array with arguments.
         """
-        parser = argparse.ArgumentParser(description = 'Check Markdown files before publishing blog postings',
-                                         add_help = False)
+        parser = argparse.ArgumentParser(description='Check Markdown files before publishing blog postings',
+                                         add_help=False)
         self.argument_parser = parser
-        parser.add_argument('--help', default = False, dest = 'help', action = 'store_true', help = 'show this help')
+        parser.add_argument('--help', default=False, dest='help', action='store_true', help='show this help')
         # store_true: store "True" if specified, otherwise store "False"
         # store_false: store "False" if specified, otherwise store "True"
-        parser.add_argument('-v', '--verbose', default = False, dest = 'verbose', action = 'store_true', help = 'be more verbose')
-        parser.add_argument('-q', '--quiet', default = False, dest = 'quiet', action = 'store_true', help = 'run quietly')
-        parser.add_argument('-c', default = '', dest = 'configfile', help = "configuration file (default: 'check-markdown-files.conf in repository')")
-        parser.add_argument('-n', default = False, dest = 'dry_run', action = 'store_true', help = 'dry-run (don\'t change anything)')
-        parser.add_argument('-r', default = False, dest = 'replace_quotes', action = 'store_true', help = 'replace words with quotes around it ("*...*") with `...`')
-        parser.add_argument('-p', default = False, dest = 'print_dry', action = 'store_true', help = 'print result in dry-run mode')
-        parser.add_argument('remainder', nargs = argparse.REMAINDER)
+        parser.add_argument('-v', '--verbose', default=False, dest='verbose', action='store_true', help='be more verbose')
+        parser.add_argument('-q', '--quiet', default=False, dest='quiet', action='store_true', help='run quietly')
+        parser.add_argument('-c', default='', dest='configfile', help="configuration file (default: 'check-markdown-files.conf in repository')")
+        parser.add_argument('-n', default=False, dest='dry_run', action='store_true', help='dry-run (don\'t change anything)')
+        parser.add_argument('-r', default=False, dest='replace_quotes', action='store_true', help='replace words with quotes around it ("*...*") with `...`')
+        parser.add_argument('-p', default=False, dest='print_dry', action='store_true', help='print result in dry-run mode')
+        parser.add_argument('remainder', nargs=argparse.REMAINDER)
 
         # parse parameters
         args = parser.parse_args()
 
-        if (args.help is True):
-            self.print_help()
-            sys.exit(0)
-
-        if (args.verbose is True and args.quiet is True):
-            self.print_help()
-            print("")
+        if args.verbose and args.quiet:
+            parser.print_help()
+            print()
             print("Error: --verbose and --quiet can't be set at the same time")
             sys.exit(1)
 
-        if (args.verbose is True):
+        if args.verbose:
             logging.getLogger().setLevel(logging.DEBUG)
 
-        if (args.quiet is True):
+        if args.quiet:
             logging.getLogger().setLevel(logging.ERROR)
 
-        if (args.configfile != ""):
-            # verify that the configfile exists
-            if (not os.path.exists(args.configfile) or not os.access(args.configfile, os.W_OK)):
-                self.print_help()
-                logging.error("Error: configfile must exist and must be readable")
-                sys.exit(1)
+        # if no configfile is named, try to find it somewhere
+        if not args.configfile:
+            args.configfile = self.find_configfile()
+        self.configfile = args.configfile  # Let's remember this for better error messages.
+
+        if args.configfile:
+            try:
+                with open(args.configfile, 'r') as f:
+                    self.config_contents = f.read()
+            except OSError as e:
+                print("Can't read {c}: {e}".format(c=args.configfile, e=e))
         else:
-            # find existing configfile
-            # https://git-scm.com/docs/githooks#_description
-            configfile = self.find_configfile()
-            if (configfile is not None):
-                args.configfile = configfile
+            logging.error("No config file given, and none found in the standard locations.")
+            sys.exit(1)
 
         # remaining arguments must be Markdown files
         for f in args.remainder:
-            if (not os.path.exists(f)):
-                logging.error("File ({f}) does not exist!".format(f = f))
+            f = Path(f)
+            if f.exists():
+                logging.error("File ({f}) does not exist!".format(f=f))
                 sys.exit(1)
-            if (not os.path.isfile(f)):
-                logging.error("Argument ({f}) is not a file!".format(f = f))
+            if f.is_file():
+                logging.error("Argument ({f}) is not a file!".format(f=f))
                 sys.exit(1)
-            if (not f.endswith('.md')):
-                logging.error("Argument ({f}) is not a Markdown file!".format(f = f))
+            if not f.name.endswith('.md'):
+                logging.error("Argument ({f}) is not a Markdown file!".format(f=f))
                 sys.exit(1)
 
-        self.__cmdline_read = 1
         self.arguments = args
-        logging.debug("Commandline arguments successfuly parsed")
+        logging.debug("Commandline arguments successfully parsed")
 
         return
 
