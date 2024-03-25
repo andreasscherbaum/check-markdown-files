@@ -84,7 +84,7 @@ class Config:
         this_dir = Path(this_dir)
         configname = Path("check-markdown-files.conf")
 
-        for d in this_dir.parents:
+        for d in [this_dir] + list(this_dir.parents):
             this_file = (d/configname).resolve()
             if this_file.is_file():
                 logging.debug("Found configfile: {f}".format(f=this_file))
