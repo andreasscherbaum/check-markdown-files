@@ -1771,15 +1771,18 @@ def main():
             if (rc != 0):
                 global_rc = 1
     else:
-        # find all index.md files
-        start = "content/post"
-        for rootpath, dirs, files in os.walk(start):
-            for filename in files:
-                if (not filename.endswith(".md")):
-                    continue
-                rc = handle_markdown_file(config, os.path.join(rootpath, filename))
-                if (rc != 0):
-                    global_rc = 1
+        # find all Markdown files
+        # only scan directories where blog postings are expected
+        # the 'content' directory can have other entries which are not to be checked
+        directories = ["content/post", "content/posts", "content/blog", "content/blogs"]
+        for directory in directories:
+            for rootpath, dirs, files in os.walk(directory):
+                for filename in files:
+                    if (not filename.endswith(".md")):
+                        continue
+                    rc = handle_markdown_file(config, os.path.join(rootpath, filename))
+                    if (rc != 0):
+                        global_rc = 1
 
     return global_rc
 
