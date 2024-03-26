@@ -24,6 +24,36 @@ no_frontmatter:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+broken_config:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stderr_lines_expected: 8
+    stdout_must_include: []
+    stderr_must_include:
+      - "Error parsing configfile"
+      - "while scanning a simple key"
+      - "could not find expected"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+broken_frontmatter:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stderr_lines_expected: 8
+    stdout_must_include: []
+    stderr_must_include:
+      - "Error parsing frontmatter"
+      - "while scanning a simple key"
+      - "could not find expected"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 verbose_ok:
     rc_expected: 0
     cmdoptions: "-v"
