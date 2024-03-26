@@ -181,8 +181,7 @@ class Config:
         config_data = {}
         if self.config_contents:
             try:
-                # TODO: We are using yaml.FullLoader here, because ...  -- for @andreasscherbaum to fill in.
-                config_data = yaml.load(self.config_contents, Loader=yaml.FullLoader)
+                config_data = yaml.safe_load(self.config_contents)
             except yaml.YAMLError as e:
                 logging.error("Error parsing configfile {c}: {e}".format(c=self.arguments.configfile, e=e))
                 sys.exit(1)
