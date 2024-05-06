@@ -1739,7 +1739,10 @@ def check_header_field_length(config, data, filename, init_frontmatter):
             log_entries.append("Missing Frontmatter entry: {f}".format(f = f))
             continue
 
-        fl = len(yml[f])
+        try:
+            fl = len(yml[f])
+        except TypeError:
+            fl = 0
         if (fl < l):
             if (not supresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
                 log_entries.append("Frontmatter entry too short: {f} ({fl} < {l} chars): {f}".format(f = f, fl = fl, l = l))
