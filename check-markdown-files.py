@@ -169,6 +169,7 @@ class Config:
         self.checks['check_empty_line_after_code'] = False
         self.checks['check_forbidden_words'] = False
         self.checks['check_forbidden_websites'] = False
+        self.checks['check_header_field_length'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -331,6 +332,37 @@ class Config:
                 logging.error("Image size ('image_size') is not an integer!")
                 sys.exit(1)
 
+        # list of header fields which must have a certain length
+        if self.checks['check_header_field_length']:
+            if 'header_field_length' not in config_data:
+                logging.error("'check_header_field_length' is activated, but 'header_field_length' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['header_field_length'], list):
+                logging.error("'header_field_length' must be a list!")
+                sys.exit(1)
+            self.checks['header_field_length'] = config_data['header_field_length']
+            for data in config_data['header_field_length']:
+                if (not isinstance(data, dict)):
+                    logging.error("Header field entry must be a dict!")
+                    logging.error("Data: {d}".format(d = str(data)))
+                    sys.exit(1)
+                h, l = list(data.items())[0]
+                try:
+                    # make this an integer, has to be an integer anyway
+                    l = int(l)
+                    if (l < 0):
+                        logging.error("Length must be greater zero!")
+                        logging.error("Data: {d}".format(d = str(data)))
+                        sys.exit(1)
+                except ValueError:
+                    logging.error("Length must be an integer!")
+                    logging.error("Data: {d}".format(d = str(data)))
+                    sys.exit(1)
+                except TypeError:
+                    logging.error("Unknown error!")
+                    logging.error("Data: {d}".format(d = str(data)))
+                    sys.exit(1)
+
     def files(self):
         return self.arguments.remainder
 
@@ -451,6 +483,9 @@ def handle_markdown_file(config, filename):
 
     if (config.checks['check_forbidden_websites']):
         output = check_forbidden_websites(config, output, filename, frontmatter)
+
+    if (config.checks['check_header_field_length']):
+        output = check_header_field_length(config, output, filename, frontmatter)
 
     if (config.checks['do_remove_whitespaces_at_end']):
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -1671,6 +1706,44 @@ def check_forbidden_websites(config, data, filename, init_frontmatter):
             if (not supresswarnings(frontmatter, 'skip_forbidden_websites_' + fw, filename)):
                 log_entries.append("Found forbidden website: {t}".format(t = fw))
                 log_entries.append("  Use 'skip_forbidden_websites_{t}' in 'supresswarnings' to silence this warning".format(t = fw))
+
+    return data
+
+
+# check_header_field_length()
+#
+# check if header (frontmatter) fields have at least a certain length
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_header_field_length(config, data, filename, init_frontmatter):
+    global log_entries
+
+    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    try:
+        yml = yaml.safe_load(frontmatter)
+    except yaml.YAMLError as e:
+        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
+        sys.exit(1)
+
+    for hfl in config.checks['header_field_length']:
+        f, l = list(hfl.items())[0]
+
+        if (f not in yml):
+            # can't supress the missing field
+            log_entries.append("Missing Frontmatter entry: {f}".format(f = f))
+            continue
+
+        fl = len(yml[f])
+        if (fl < l):
+            if (not supresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
+                log_entries.append("Frontmatter entry too short: {f} ({fl} < {l} chars): {f}".format(f = f, fl = fl, l = l))
+                log_entries.append("  Use 'skip_header_field_length_{f}' in 'supresswarnings' to silence this warning".format(f = f))
 
     return data
 

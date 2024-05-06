@@ -1031,6 +1031,74 @@ check_forbidden_websites_invalid_config:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_header_field_length:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Frontmatter entry too short: description"
+      - "Use 'skip_header_field_length_description' in 'supresswarnings' to silence this warning"
+      - "Frontmatter entry too short: summary"
+      - "Use 'skip_header_field_length_summary' in 'supresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_header_field_length_partially_supressed:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 3
+    stdout_must_include:
+      - "Frontmatter entry too short: description"
+      - "Use 'skip_header_field_length_description' in 'supresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_header_field_length_supressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_header_field_length_invalid_config_1:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'check_header_field_length' is activated, but 'header_field_length' data is not specified!"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_header_field_length_invalid_config_2:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stderr_lines_expected: 2
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: Header field entry must be a dict!"
+      - "ERROR: Data: description"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 do_remove_whitespaces_at_end:
     rc_expected: 1
     cmdoptions: ""

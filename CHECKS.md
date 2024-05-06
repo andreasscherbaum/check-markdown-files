@@ -437,6 +437,27 @@ supresswarnings:
 - skip_forbidden_websites_example.invalid
 ```
 
+## check_header_field_length
+
+This check ensures that specified header (Frontmatter) fields are present, and have a minimum length. Example:
+
+```
+check_header_field_length: True
+header_field_length:
+  - description: 10
+```
+
+This example ensures that the Frontmatter field `description` is present. It also specifies that the field must have a minimum length of 10 characters.
+
+In a Markdown file the length check can be excluded. Example:
+
+```
+supresswarnings:
+- skip_header_field_length_description
+```
+
+The presence check for the field can't be skipped.
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.
