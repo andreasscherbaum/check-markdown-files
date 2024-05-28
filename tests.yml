@@ -1099,6 +1099,62 @@ check_header_field_length_invalid_config_2:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_double_brackets:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Found opening double brackets"
+      - "Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning"
+      - "Found closing double brackets"
+      - "Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_brackets_supress_opening:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 3
+    stdout_must_include:
+      - "Found closing double brackets"
+      - "Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_brackets_supress_closing:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 3
+    stdout_must_include:
+      - "Found opening double brackets"
+      - "Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_brackets_supressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 do_remove_whitespaces_at_end:
     rc_expected: 1
     cmdoptions: ""

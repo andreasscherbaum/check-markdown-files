@@ -170,6 +170,7 @@ class Config:
         self.checks['check_forbidden_words'] = False
         self.checks['check_forbidden_websites'] = False
         self.checks['check_header_field_length'] = False
+        self.checks['check_double_brackets'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -486,6 +487,9 @@ def handle_markdown_file(config, filename):
 
     if (config.checks['check_header_field_length']):
         output = check_header_field_length(config, output, filename, frontmatter)
+
+    if (config.checks['check_double_brackets']):
+        output = check_double_brackets(config, output, filename, frontmatter)
 
     if (config.checks['do_remove_whitespaces_at_end']):
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -1747,6 +1751,61 @@ def check_header_field_length(config, data, filename, init_frontmatter):
             if (not supresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
                 log_entries.append("Frontmatter entry too short: {f} ({fl} < {l} chars): {f}".format(f = f, fl = fl, l = l))
                 log_entries.append("  Use 'skip_header_field_length_{f}' in 'supresswarnings' to silence this warning".format(f = f))
+
+    return data
+
+
+# check_double_brackets()
+#
+# check if opening or closing double brackets (parenthesis) appear in the text
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_double_brackets(config, data, filename, init_frontmatter):
+    global log_entries
+
+    if (supresswarnings(init_frontmatter, 'skip_double_brackets_opening', filename) and
+        supresswarnings(init_frontmatter, 'skip_double_brackets_closing', filename)):
+        return data
+
+
+    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    try:
+        yml = yaml.safe_load(frontmatter)
+    except yaml.YAMLError as e:
+        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
+        sys.exit(1)
+
+    lines = body.splitlines()
+    in_code_block = False
+    body_lines = []
+
+    for line in lines:
+        if (line[0:3] == '```'):
+            if (not in_code_block):
+                in_code_block = True
+            else:
+                in_code_block = False
+        if (in_code_block):
+            continue
+        body_lines.append(line)
+
+    body = "".join(body_lines)
+
+    if ('((' in body):
+        if (not supresswarnings(frontmatter, 'skip_double_brackets_opening', filename)):
+            log_entries.append("Found opening double brackets!")
+            log_entries.append("  Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning")
+
+    if ('))' in body):
+        if (not supresswarnings(frontmatter, 'skip_double_brackets_closing', filename)):
+            log_entries.append("Found closing double brackets!")
+            log_entries.append("  Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning")
 
     return data
 

@@ -462,6 +462,22 @@ supresswarnings:
 
 The presence check for the field can't be skipped.
 
+## check_double_brackets
+
+This check find double opening and closing brackets. This is sometimes a leftover from an editor auto-completing an opening `(` with a closing `)`, which goes unnoticed. Example:
+
+```
+check_double_brackets: True
+```
+
+Disable this check locally with:
+
+```
+supresswarnings:
+- skip_double_brackets_opening
+- skip_double_brackets_closing
+```
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.
