@@ -98,6 +98,8 @@ supresswarnings:
 - skip_missing_tags_raspberry-pi
 ```
 
+The example file `check-markdown-files.conf` in this repository comes with a long list of country and city names already filled in.
+
 ## missing_words_as_tags
 
 This check defines a list of words which should also be tags. The words and tags are handled lower-case.
@@ -120,6 +122,8 @@ Sometimes it is not desirable to add a tag for a specific blog posting, even tho
 supresswarnings:
 - skip_missing_words_berlin
 ```
+
+The example file `check-markdown-files.conf` in this repository comes with a long list of country and city names already filled in.
 
 ## check_invalid_tags
 
