@@ -9,7 +9,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_header_field_length_summary
 ---
 

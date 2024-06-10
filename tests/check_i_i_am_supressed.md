@@ -7,7 +7,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_i_in_text
 - skip_i_am_in_text
 ---

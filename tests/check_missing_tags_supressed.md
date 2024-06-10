@@ -7,7 +7,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_missing_tags_raspberry-pi
 - skip_missing_tags_icecream
 - skip_missing_tags_ice-cream

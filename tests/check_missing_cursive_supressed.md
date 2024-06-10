@@ -7,7 +7,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_missing_cursive_PostGIS
 - skip_missing_cursive_PostgreSQL
 ---

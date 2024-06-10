@@ -7,7 +7,7 @@ categories:
 - changeme
 tags:
 - changeme
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

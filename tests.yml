@@ -76,12 +76,12 @@ check_find_whitespaces_at_end:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 3 lines with whitespaces at the end"
-      - "Use 'skip_whitespaces_at_end' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_whitespaces_at_end' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_find_whitespaces_at_end_supressed:
+check_find_whitespaces_at_end_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -102,12 +102,12 @@ check_more_separator:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Missing '<!--more-->' separator in Markdown"
-      - "Use 'skip_more_separator' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_more_separator' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_more_separator_supressed:
+check_more_separator_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -128,12 +128,12 @@ check_find_3_headline:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Headline 3 in Markdown"
-      - "Use 'skip_headline3' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_headline3' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_find_3_headline_supressed:
+check_find_3_headline_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -154,12 +154,12 @@ check_find_4_headline:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Headline 4 in Markdown"
-      - "Use 'skip_headline4' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_headline4' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_find_4_headline_supressed:
+check_find_4_headline_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -180,12 +180,12 @@ check_find_5_headline:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Headline 5 in Markdown"
-      - "Use 'skip_headline5' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_headline5' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_find_5_headline_supressed:
+check_find_5_headline_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -206,16 +206,16 @@ check_missing_tags:
     stdout_lines_expected: 9
     stdout_must_include:
       - "'raspberry-pi' tag is missing"
-      - "Use 'skip_missing_tags_raspberry-pi' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_tags_raspberry-pi' in 'suppresswarnings' to silence this warning"
       - "'icecream' tag is missing"
       - "'ice-cream' tag is missing"
-      - "Use 'skip_missing_tags_icecream' in 'supresswarnings' to silence this warning"
-      - "Use 'skip_missing_tags_ice-cream' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_tags_icecream' in 'suppresswarnings' to silence this warning"
+      - "Use 'skip_missing_tags_ice-cream' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_tags_partial_supressed:
+check_missing_tags_partial_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -224,14 +224,14 @@ check_missing_tags_partial_supressed:
     stdout_lines_expected: 7
     stdout_must_include:
       - "'icecream' tag is missing"
-      - "Use 'skip_missing_tags_icecream' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_tags_icecream' in 'suppresswarnings' to silence this warning"
       - "'ice-cream' tag is missing"
-      - "Use 'skip_missing_tags_ice-cream' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_tags_ice-cream' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_tags_supressed:
+check_missing_tags_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -251,14 +251,14 @@ check_missing_words_as_tags:
     stdout_lines_expected: 5
     stdout_must_include:
       - "'berlin' tag is missing"
-      - "Use 'skip_missing_words_berlin' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_words_berlin' in 'suppresswarnings' to silence this warning"
       - "'backup' tag is missing"
-      - "Use 'skip_missing_words_backup' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_words_backup' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_words_as_tags_partial_supressed:
+check_missing_words_as_tags_partial_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -267,14 +267,14 @@ check_missing_words_as_tags_partial_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "'berlin' tag is missing"
-      - "Use 'skip_missing_words_berlin' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_words_berlin' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include:
       - "'backup' tag is missing"
-      - "Use 'skip_missing_words_backup' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_words_backup' in 'suppresswarnings' to silence this warning"
     stderr_must_not_include: []
 
-check_missing_words_as_tags_supressed:
+check_missing_words_as_tags_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -337,14 +337,14 @@ check_missing_other_tags_one_way:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found 'pljava' tag but 'java' tag is missing"
-      - "Use 'skip_missing_other_tags_one_way_pljava_java' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_one_way_pljava_java' in 'suppresswarnings' to silence this warning"
       - "Found 'pgsqlphriday' tag but 'challenge' tag is missing"
-      - "Use 'skip_missing_other_tags_one_way_pgsqlphriday_challenge' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_one_way_pgsqlphriday_challenge' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_other_tags_one_way_partially_supressed:
+check_missing_other_tags_one_way_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -353,12 +353,12 @@ check_missing_other_tags_one_way_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'pgsqlphriday' tag but 'challenge' tag is missing"
-      - "Use 'skip_missing_other_tags_one_way_pgsqlphriday_challenge' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_one_way_pgsqlphriday_challenge' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_other_tags_one_way_supressed:
+check_missing_other_tags_one_way_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -378,14 +378,14 @@ check_missing_other_tags_both_ways:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found 'icecream' tag but 'ice-cream' tag is missing"
-      - "Use 'skip_missing_other_tags_both_ways_icecream_ice-cream' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_both_ways_icecream_ice-cream' in 'suppresswarnings' to silence this warning"
       - "Found 'osm' tag but 'openstreetmap' tag is missing"
-      - "Use 'skip_missing_other_tags_both_ways_osm_openstreetmap' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_both_ways_osm_openstreetmap' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_other_tags_both_ways_partially_supressed:
+check_missing_other_tags_both_ways_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -394,12 +394,12 @@ check_missing_other_tags_both_ways_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'osm' tag but 'openstreetmap' tag is missing"
-      - "Use 'skip_missing_other_tags_both_ways_osm_openstreetmap' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_other_tags_both_ways_osm_openstreetmap' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_other_tags_both_ways_supressed:
+check_missing_other_tags_both_ways_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -419,14 +419,14 @@ check_missing_cursive:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found non-cursive token: PostgreSQL"
-      - "Use 'skip_missing_cursive_PostgreSQL' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_cursive_PostgreSQL' in 'suppresswarnings' to silence this warning"
       - "Found non-cursive token: PostGIS"
-      - "Use 'skip_missing_cursive_PostGIS' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_cursive_PostGIS' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_cursive_partially_supressed:
+check_missing_cursive_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -435,12 +435,12 @@ check_missing_cursive_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found non-cursive token: PostgreSQL"
-      - "Use 'skip_missing_cursive_PostgreSQL' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_missing_cursive_PostgreSQL' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_missing_cursive_supressed:
+check_missing_cursive_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -460,12 +460,12 @@ check_http_link:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'http://' link"
-      - "Use 'skip_httplink' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_httplink' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_http_link_supressed:
+check_http_link_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -485,12 +485,12 @@ check_hugo_localhost:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found Hugo preview link"
-      - "Use 'skip_hugo_localhost' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_hugo_localhost' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_hugo_localhost_supressed:
+check_hugo_localhost_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -510,14 +510,14 @@ check_i_i_am:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found lowercase 'i' in text"
-      - "Use 'skip_i_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_in_text' in 'suppresswarnings' to silence this warning"
       - "Found lowercase 'i'm' in text"
-      - "Use 'skip_i_am_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_am_in_text' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_i_i_am_supress_i:
+check_i_i_am_suppress_i:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -526,14 +526,14 @@ check_i_i_am_supress_i:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found lowercase 'i'm' in text"
-      - "Use 'skip_i_am_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_am_in_text' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include:
       - "Found lowercase 'i' in text"
-      - "Use 'skip_i_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_in_text' in 'suppresswarnings' to silence this warning"
     stderr_must_not_include: []
 
-check_i_i_am_supress_i_am:
+check_i_i_am_suppress_i_am:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -542,14 +542,14 @@ check_i_i_am_supress_i_am:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found lowercase 'i' in text"
-      - "Use 'skip_i_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_in_text' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include:
       - "Found lowercase 'i'm' in text"
-      - "Use 'skip_i_am_in_text' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_i_am_in_text' in 'suppresswarnings' to silence this warning"
     stderr_must_not_include: []
 
-check_i_i_am_supressed:
+check_i_i_am_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -569,14 +569,14 @@ check_changeme:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found 'changeme' tag"
-      - "Use 'skip_changeme_tag' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_tag' in 'suppresswarnings' to silence this warning"
       - "Found 'changeme' category"
-      - "Use 'skip_changeme_category' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_category' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_changeme_supress_category:
+check_changeme_suppress_category:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -585,14 +585,14 @@ check_changeme_supress_category:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'changeme' tag"
-      - "Use 'skip_changeme_tag' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_tag' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include:
       - "Found 'changeme' category"
-      - "Use 'skip_changeme_category' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_category' in 'suppresswarnings' to silence this warning"
     stderr_must_not_include: []
 
-check_changeme_supress_tag:
+check_changeme_suppress_tag:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -601,14 +601,14 @@ check_changeme_supress_tag:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'changeme' category"
-      - "Use 'skip_changeme_category' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_category' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include:
       - "Found 'changeme' tag"
-      - "Use 'skip_changeme_tag' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_changeme_tag' in 'suppresswarnings' to silence this warning"
     stderr_must_not_include: []
 
-check_changeme_supressed:
+check_changeme_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -628,13 +628,13 @@ check_code_blocks:
     stdout_lines_expected: 4
     stdout_must_include:
       - "Found ummatching fenced code blocks"
-      - "Use 'skip_unmatching_code_blocks' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_unmatching_code_blocks' in 'suppresswarnings' to silence this warning"
       - "Language list: https://gohugo.io/content-management/syntax-highlighting/"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_code_blocks_supressed:
+check_code_blocks_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -654,12 +654,12 @@ check_psql_code_blocks:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'psql' code blocks, use 'postgresql' instead"
-      - "Use 'skip_psql_code' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_psql_code' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_psql_code_blocks_supressed:
+check_psql_code_blocks_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -679,12 +679,12 @@ check_image_inside_preview:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found image in preview, move it further down"
-      - "Use 'skip_image_inside_preview' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_image_inside_preview' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_image_inside_preview_supressed:
+check_image_inside_preview_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -704,7 +704,7 @@ check_preview_thumbnail:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found no preview image in header"
-      - "Use 'skip_preview_thumbnail' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_preview_thumbnail' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
@@ -718,12 +718,12 @@ check_preview_thumbnail_not_set:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found no preview image in header"
-      - "Use 'skip_preview_thumbnail' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_preview_thumbnail' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_preview_thumbnail_supressed:
+check_preview_thumbnail_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -743,7 +743,7 @@ check_preview_description:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found no preview description in header"
-      - "Use 'skip_preview_description' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_preview_description' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
@@ -757,12 +757,12 @@ check_preview_description_not_set:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found no preview description in header"
-      - "Use 'skip_preview_description' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_preview_description' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_preview_description_supressed:
+check_preview_description_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -782,14 +782,14 @@ check_image_size:
     stdout_lines_expected: 4
     stdout_must_include:
       - "Found large images, either resize them or"
-      - "Use 'skip_image_size' to supress this warning"
+      - "Use 'skip_image_size' to suppress this warning"
       - "Large file"
       - "check_image_size.large"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_image_size_supressed:
+check_image_size_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: "check_image_size"
@@ -809,12 +809,12 @@ check_dass:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found 'daß' in text"
-      - "Use 'skip_dass' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_dass' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_dass_supressed:
+check_dass_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -834,7 +834,7 @@ check_empty_line_after_header:
     stdout_lines_expected: 7
     stdout_must_include:
       - "Missing empty line after header"
-      - "Use 'skip_empty_line_after_header' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_empty_line_after_header' in 'suppresswarnings' to silence this warning"
       - "Header: ## This is a header without empty line afterwards"
       - "Header: ## This is another header without empty line afterwards"
     stderr_must_include: []
@@ -852,7 +852,7 @@ check_empty_line_after_header_ok:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_empty_line_after_header_supressed:
+check_empty_line_after_header_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -872,7 +872,7 @@ check_empty_line_after_list:
     stdout_lines_expected: 9
     stdout_must_include:
       - "Missing empty line after list"
-      - "Use 'skip_empty_line_after_list' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_empty_line_after_list' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
@@ -888,7 +888,7 @@ check_empty_line_after_list_ok:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_empty_line_after_list_supressed:
+check_empty_line_after_list_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -908,7 +908,7 @@ check_empty_line_after_code:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Missing empty line after code"
-      - "Use 'skip_empty_line_after_code' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_empty_line_after_code' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
@@ -924,7 +924,7 @@ check_empty_line_after_code_ok:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_empty_line_after_code_supressed:
+check_empty_line_after_code_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -944,14 +944,14 @@ check_forbidden_words:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found forbidden word: Markdown"
-      - "Use 'skip_forbidden_words_Markdown' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_words_Markdown' in 'suppresswarnings' to silence this warning"
       - "Found forbidden word: TestCase"
-      - "Use 'skip_forbidden_words_TestCase' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_words_TestCase' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_forbidden_words_partially_supressed:
+check_forbidden_words_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -960,12 +960,12 @@ check_forbidden_words_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found forbidden word: TestCase"
-      - "Use 'skip_forbidden_words_TestCase' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_words_TestCase' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_forbidden_words_supressed:
+check_forbidden_words_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -985,14 +985,14 @@ check_forbidden_websites:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found forbidden website: example.invalid"
-      - "Use 'skip_forbidden_websites_example.invalid' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_websites_example.invalid' in 'suppresswarnings' to silence this warning"
       - "Found forbidden website: example.arpa"
-      - "Use 'skip_forbidden_websites_example.arpa' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_websites_example.arpa' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_forbidden_websites_partially_supressed:
+check_forbidden_websites_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -1001,12 +1001,12 @@ check_forbidden_websites_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found forbidden website: example.invalid"
-      - "Use 'skip_forbidden_websites_example.invalid' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_forbidden_websites_example.invalid' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_forbidden_websites_supressed:
+check_forbidden_websites_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -1040,14 +1040,14 @@ check_header_field_length:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Frontmatter entry too short: description"
-      - "Use 'skip_header_field_length_description' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_header_field_length_description' in 'suppresswarnings' to silence this warning"
       - "Frontmatter entry too short: summary"
-      - "Use 'skip_header_field_length_summary' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_header_field_length_summary' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_header_field_length_partially_supressed:
+check_header_field_length_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -1056,12 +1056,12 @@ check_header_field_length_partially_supressed:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Frontmatter entry too short: description"
-      - "Use 'skip_header_field_length_description' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_header_field_length_description' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_header_field_length_supressed:
+check_header_field_length_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -1108,14 +1108,14 @@ check_double_brackets:
     stdout_lines_expected: 5
     stdout_must_include:
       - "Found opening double brackets"
-      - "Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_double_brackets_opening' in 'suppresswarnings' to silence this warning"
       - "Found closing double brackets"
-      - "Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_double_brackets_closing' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_double_brackets_supress_opening:
+check_double_brackets_suppress_opening:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -1124,12 +1124,12 @@ check_double_brackets_supress_opening:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found closing double brackets"
-      - "Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_double_brackets_closing' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_double_brackets_supress_closing:
+check_double_brackets_suppress_closing:
     rc_expected: 1
     cmdoptions: ""
     test_subdirectory: ""
@@ -1138,12 +1138,12 @@ check_double_brackets_supress_closing:
     stdout_lines_expected: 3
     stdout_must_include:
       - "Found opening double brackets"
-      - "Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning"
+      - "Use 'skip_double_brackets_opening' in 'suppresswarnings' to silence this warning"
     stderr_must_include: []
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-check_double_brackets_supressed:
+check_double_brackets_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -1174,7 +1174,7 @@ do_remove_whitespaces_at_end:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-do_remove_whitespaces_at_end_supressed:
+do_remove_whitespaces_at_end_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""
@@ -1204,7 +1204,7 @@ do_replace_broken_links:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
-do_replace_broken_links_supressed:
+do_replace_broken_links_suppressed:
     rc_expected: 0
     cmdoptions: ""
     test_subdirectory: ""

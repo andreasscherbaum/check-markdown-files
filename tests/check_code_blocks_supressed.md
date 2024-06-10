@@ -7,7 +7,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_unmatching_code_blocks
 ---
 

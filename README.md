@@ -22,7 +22,7 @@ cd .git/hooks/ && ln -s ../check-markdown-files/check-markdown-files.py pre-comm
 
 In `check-markdown-files.conf`, the following checks and config options are available. All checks are disabled by default, and can be enabled in the configuration file.
 
-If a check is enabled, it applies to all Markdown files (global configuration). Most checks can be disabled on a local level, using flags in the `supresswarnings` header in Frontmatter.
+If a check is enabled, it applies to all Markdown files (global configuration). Most checks can be disabled on a local level, using flags in the `suppresswarnings` header in Frontmatter.
 
 All available checks are listes in the [CHECKS](CHECKS.md) document.
 

@@ -8,7 +8,7 @@ categories:
 tags:
 - pljava
 - pgsqlphriday
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

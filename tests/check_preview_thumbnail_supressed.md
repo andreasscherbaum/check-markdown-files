@@ -8,7 +8,7 @@ categories:
 - testing
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - skip_preview_thumbnail
 ---
 

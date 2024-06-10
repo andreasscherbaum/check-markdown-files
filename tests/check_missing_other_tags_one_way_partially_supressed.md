@@ -8,7 +8,7 @@ categories:
 tags:
 - pljava
 - pgsqlphriday
-supresswarnings:
+suppresswarnings:
 - skip_missing_other_tags_one_way_pljava_java
 ---
 

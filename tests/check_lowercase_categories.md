@@ -12,7 +12,7 @@ categories:
 - invalidßcategory
 tags:
 - testing
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

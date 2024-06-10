@@ -12,7 +12,7 @@ tags:
 - invalid%tag
 - invalid-tag
 - invalidßtag
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

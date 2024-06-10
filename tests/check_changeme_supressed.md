@@ -7,7 +7,7 @@ categories:
 - changeme
 tags:
 - changeme
-supresswarnings:
+suppresswarnings:
 - skip_changeme_category
 - skip_changeme_tag
 ---

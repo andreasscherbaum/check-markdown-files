@@ -9,7 +9,7 @@ tags:
 - raspberry-pi
 - icecream
 - ice-cream
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

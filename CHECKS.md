@@ -3,7 +3,7 @@
 
 In `check-markdown-files.conf`, the following checks and config options are available. All checks are disabled by default, and can be enabled in the configuration file.
 
-If a check is enabled, it applies to all Markdown files (global configuration). Most checks can be disabled on a local level, using flags in the `supresswarnings` header in Frontmatter.
+If a check is enabled, it applies to all Markdown files (global configuration). Most checks can be disabled on a local level, using flags in the `suppresswarnings` header in Frontmatter.
 
 ## check_whitespaces_at_end
 
@@ -12,7 +12,7 @@ Warn if whitespaces exist at the end of lines. This check [excludes quotes](http
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_whitespaces_at_end
 ```
 
@@ -31,7 +31,7 @@ You can add this separator into your [archetypes](https://gohugo.io/content-mana
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_more_separator
 ```
 
@@ -42,7 +42,7 @@ Level 3 headlines are relatively small headlines. Depending on the stylesheet th
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_headline3
 ```
 
@@ -53,7 +53,7 @@ Level 4 headlines are small headlines. Depending on the stylesheet they might no
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_headline4
 ```
 
@@ -64,7 +64,7 @@ Level 5 headlines are very small headlines. Depending on the stylesheet they mig
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_headline5
 ```
 
@@ -94,7 +94,7 @@ If the word `Raspberry Pi` appears in the text, then the tag `raspberry-pi` must
 Sometimes it is not desirable to add a tag for a specific blog posting, even though globally this word/tag combination is set. The check for every keyword can be skipped in a Markdown file by adding the `skip_missing_tags_*` flag, where `*` stands for the flag. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_missing_tags_raspberry-pi
 ```
 
@@ -119,7 +119,7 @@ missing_words:
 Sometimes it is not desirable to add a tag for a specific blog posting, even though globally this word is set. The check for every keyword can be skipped in a Markdown file by adding the `skip_missing_words_*` flag, where `*` stands for the flag. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_missing_words_berlin
 ```
 
@@ -159,7 +159,7 @@ In the first example, if the `pljava` tag is specified, the `java` tag should al
 Every combination of tags can also be excluded in a Markdown file from the check. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_missing_other_tags_one_way_pljava_java
 ```
 
@@ -183,7 +183,7 @@ The first example ensured two different ways for `icecream` as tags. The second 
 Every combination of tags can also be excluded in a Markdown file from the check. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_missing_other_tags_both_ways_openstreetmap_osm
 ```
 
@@ -205,7 +205,7 @@ This example ensures that the words `Ansible`, `PostgreSQL`, `Berlin` and `Londo
 In a Markdown file this check can be excluded for a word. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_missing_cursive_Ansible
 ```
 
@@ -216,7 +216,7 @@ This check ensures that all links use `https` instead of `http`.
 Sometimes web resources are not available as `https`, then the check can be disabled in a Markdown file:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_httplink
 ```
 
@@ -227,7 +227,7 @@ The words `I` and `I'm` are written uppercase in the English language. That's a 
 Both checks can be disabled locally:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_i_in_text
 - skip_i_am_in_text
 ```
@@ -239,7 +239,7 @@ When writing new blog postings, Hugo provides a [server mode](https://gohugo.io/
 If for some reason this check must be disabled in a Markdown file:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_hugo_localhost
 ```
 
@@ -252,7 +252,7 @@ This check verifies that no `changeme` tags or categories are left in a posting.
 Both checks can be disabled locally:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_changeme_tag
 - skip_changeme_category
 ```
@@ -266,7 +266,7 @@ The list of supported types/languages [can be found here](https://gohugo.io/cont
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_unmatching_code_blocks
 ```
 
@@ -277,7 +277,7 @@ This check ensures that code blocks use `postgresql` instead of `psql` highlight
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_psql_code
 ```
 
@@ -290,7 +290,7 @@ Not every template can properly show images in the description of a posting, and
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_image_inside_preview
 ```
 
@@ -305,7 +305,7 @@ Your Hugo template might use another field instead of `thumbnail`, or not provid
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_preview_thumbnail
 ```
 
@@ -320,7 +320,7 @@ Your Hugo template might use another field instead of `description`, or not prov
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_preview_description
 ```
 
@@ -340,7 +340,7 @@ Simply said, images for the WWW should not be too large. It takes more time to l
 Sometimes there is a legitimate need for larger images in a posting, disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_image_size
 ```
 
@@ -353,7 +353,7 @@ Instead 'dass' should be used.
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_dass
 ```
 
@@ -364,7 +364,7 @@ This check ensures that a header line (`# ...`) is followed by an empty line.
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_empty_line_after_header
 ```
 
@@ -375,7 +375,7 @@ This check ensures that a list line (`- ...` or `* ...` or `1. ...`) is followed
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_empty_line_after_list
 ```
 
@@ -386,7 +386,7 @@ This check ensures that a code block is followed by an empty line.
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_empty_line_after_code
 ```
 
@@ -397,7 +397,7 @@ This check ensures that all files have the correct line ending. The type of line
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_lineendings
 ```
 
@@ -417,7 +417,7 @@ This example ensures that the words `Markdown` and `TestCase` do not appear in t
 In a Markdown file this check can be excluded for a word. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_forbidden_words_Markdown
 ```
 
@@ -437,7 +437,7 @@ This example ensures that the websites `example.invalid` and `example.arpa` do n
 In a Markdown file this check can be excluded for a word. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_forbidden_websites_example.invalid
 ```
 
@@ -456,7 +456,7 @@ This example ensures that the Frontmatter field `description` is present. It als
 In a Markdown file the length check can be excluded. Example:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_header_field_length_description
 ```
 
@@ -473,7 +473,7 @@ check_double_brackets: True
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_double_brackets_opening
 - skip_double_brackets_closing
 ```
@@ -485,7 +485,7 @@ Remove whitespaces at the end of lines. This check [excludes quotes](https://and
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_do_remove_whitespaces_at_end
 ```
 
@@ -496,7 +496,7 @@ Replace known broken links with replacement links. This allows to find and repla
 Disable this check locally with:
 
 ```
-supresswarnings:
+suppresswarnings:
 - skip_do_replace_broken_links
 ```
 

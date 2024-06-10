@@ -8,7 +8,7 @@ categories:
 tags:
 - icecream
 - osm
-supresswarnings:
+suppresswarnings:
 - skip_missing_other_tags_both_ways_icecream_ice-cream
 ---
 

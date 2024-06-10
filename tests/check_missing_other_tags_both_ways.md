@@ -8,7 +8,7 @@ categories:
 tags:
 - icecream
 - osm
-supresswarnings:
+suppresswarnings:
 - deleteme
 ---
 

@@ -548,27 +548,27 @@ def split_file_into_frontmatter_and_markdown(data, filename):
     return frontmatter, body
 
 
-# supresswarnings()
+# suppresswarnings()
 #
-# find out if a warning should be supressed
+# find out if a warning should be suppressed
 #
 # parameter:
 #  - frontmatter
-#  - the name of the warning to supress
+#  - the name of the warning to suppress
 #  - current filename
 # return:
 #  - True/False
-def supresswarnings(frontmatter, name, filename):
+def suppresswarnings(frontmatter, name, filename):
     try:
         yml = yaml.safe_load(frontmatter)
     except yaml.YAMLError as e:
         logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
         sys.exit(1)
-    if ('supresswarnings' not in yml):
+    if ('suppresswarnings' not in yml):
         # nothing in Fromtmatter
         return False
 
-    sw = yml['supresswarnings']
+    sw = yml['suppresswarnings']
     if (sw is None):
         # it's empty
         return False
@@ -632,7 +632,7 @@ def line_is_list(line):
 def check_whitespaces_at_end(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_whitespaces_at_end', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_whitespaces_at_end', filename)):
         return data
 
     lines = data.splitlines()
@@ -650,10 +650,10 @@ def check_whitespaces_at_end(config, data, filename, init_frontmatter):
 
     if (found_whitespaces > 1):
         log_entries.append("Found {n} lines with whitespaces at the end".format(n = found_whitespaces))
-        log_entries.append("  Use 'skip_whitespaces_at_end' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_whitespaces_at_end' in 'suppresswarnings' to silence this warning")
     elif (found_whitespaces == 1):
         log_entries.append("Found 1 line with whitespaces at the end")
-        log_entries.append("  Use 'skip_whitespaces_at_end' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_whitespaces_at_end' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -672,15 +672,15 @@ def check_whitespaces_at_end(config, data, filename, init_frontmatter):
 def check_find_more_separator(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_more_separator', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_more_separator', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('<!--more-->' not in body):
-        if (not supresswarnings(frontmatter, 'more_separator', filename)):
+        if (not suppresswarnings(frontmatter, 'more_separator', filename)):
             log_entries.append("Missing '<!--more-->' separator in Markdown!")
-            log_entries.append("  Use 'skip_more_separator' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_more_separator' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -699,15 +699,15 @@ def check_find_more_separator(config, data, filename, init_frontmatter):
 def check_find_3_headline(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_headline3', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_headline3', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('### ' in data):
-        if (not supresswarnings(frontmatter, 'headline3', filename)):
+        if (not suppresswarnings(frontmatter, 'headline3', filename)):
             log_entries.append("Headline 3 in Markdown!")
-            log_entries.append("  Use 'skip_headline3' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_headline3' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -726,15 +726,15 @@ def check_find_3_headline(config, data, filename, init_frontmatter):
 def check_find_4_headline(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_headline4', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_headline4', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('#### ' in data):
-        if (not supresswarnings(frontmatter, 'headline4', filename)):
+        if (not suppresswarnings(frontmatter, 'headline4', filename)):
             log_entries.append("Headline 4 in Markdown!")
-            log_entries.append("  Use 'skip_headline4' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_headline4' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -753,15 +753,15 @@ def check_find_4_headline(config, data, filename, init_frontmatter):
 def check_find_5_headline(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_headline5', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_headline5', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('##### ' in data):
-        if (not supresswarnings(frontmatter, 'headline5', filename)):
+        if (not suppresswarnings(frontmatter, 'headline5', filename)):
             log_entries.append("Headline 5 in Markdown!")
-            log_entries.append("  Use 'skip_headline5' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_headline5' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -808,16 +808,16 @@ def check_missing_tags(config, data, filename, init_frontmatter):
         tag_not_found = False
         if (word in body_string):
             if (tag not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
                     tag_not_found = True
         if (word in lc_tokens):
             if (tag not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
                     tag_not_found = True
 
         if (tag_not_found):
             log_entries.append("'{t}' tag is missing".format(t = tag))
-            log_entries.append("  Use 'skip_missing_tags_{t}' in 'supresswarnings' to silence this warning".format(t = tag))
+            log_entries.append("  Use 'skip_missing_tags_{t}' in 'suppresswarnings' to silence this warning".format(t = tag))
 
     return data
 
@@ -863,12 +863,12 @@ def check_missing_words_as_tags(config, data, filename, init_frontmatter):
         tag_not_found = False
         if (word in lc_tokens):
             if (word not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_words_' + word, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_words_' + word, filename)):
                     tag_not_found = True
 
         if (tag_not_found):
             log_entries.append("'{t}' tag is missing".format(t = word))
-            log_entries.append("  Use 'skip_missing_words_{t}' in 'supresswarnings' to silence this warning".format(t = word))
+            log_entries.append("  Use 'skip_missing_words_{t}' in 'suppresswarnings' to silence this warning".format(t = word))
 
     return data
 
@@ -1016,9 +1016,9 @@ def check_missing_other_tags_one_way(config, data, filename, init_frontmatter):
         tag2 = mt[1]
         if (tag1 in tags):
             if (tag2 not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_other_tags_one_way_' + tag1 + '_' + tag2, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_one_way_' + tag1 + '_' + tag2, filename)):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
-                    log_entries.append("  Use 'skip_missing_other_tags_one_way_{t1}_{t2}' in 'supresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
+                    log_entries.append("  Use 'skip_missing_other_tags_one_way_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
 
     return data
 
@@ -1060,16 +1060,16 @@ def check_missing_other_tags_both_ways(config, data, filename, init_frontmatter)
         tag2 = mt[1]
         if (tag1 in tags):
             if (tag2 not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
-                    log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'supresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
+                    log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
         tag1 = mt[1]
         tag2 = mt[0]
         if (tag1 in tags):
             if (tag2 not in tags):
-                if (not supresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
+                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
-                    log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'supresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
+                    log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
 
     return data
 
@@ -1107,9 +1107,9 @@ def check_missing_cursive(config, data, filename, init_frontmatter):
 
     for mc in config.checks['missing_cursive']:
         if (mc in unique_tokens):
-            if (not supresswarnings(frontmatter, 'skip_missing_cursive_' + mc, filename)):
+            if (not suppresswarnings(frontmatter, 'skip_missing_cursive_' + mc, filename)):
                 log_entries.append("Found non-cursive token: {t}".format(t = mc))
-                log_entries.append("  Use 'skip_missing_cursive_{t}' in 'supresswarnings' to silence this warning".format(t = mc))
+                log_entries.append("  Use 'skip_missing_cursive_{t}' in 'suppresswarnings' to silence this warning".format(t = mc))
 
     return data
 
@@ -1128,14 +1128,14 @@ def check_missing_cursive(config, data, filename, init_frontmatter):
 def check_http_link(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_httplink', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_httplink', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('http://' in body):
         log_entries.append("Found 'http://' link")
-        log_entries.append("  Use 'skip_httplink' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_httplink' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1154,14 +1154,14 @@ def check_http_link(config, data, filename, init_frontmatter):
 def check_hugo_localhost(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_hugo_localhost', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_hugo_localhost', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('http://localhost:1313/' in body):
         log_entries.append("Found Hugo preview link")
-        log_entries.append("  Use 'skip_hugo_localhost' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_hugo_localhost' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1180,21 +1180,21 @@ def check_hugo_localhost(config, data, filename, init_frontmatter):
 def check_i_i_am(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_i_in_text', filename) and
-        supresswarnings(init_frontmatter, 'skip_i_am_in_text', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_i_in_text', filename) and
+        suppresswarnings(init_frontmatter, 'skip_i_am_in_text', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     body = body.replace("\n", " ")
     if (' i ' in body):
-        if (not supresswarnings(frontmatter, 'skip_i_in_text', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_i_in_text', filename)):
             log_entries.append("Found lowercase 'i' in text")
-            log_entries.append("  Use 'skip_i_in_text' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_i_in_text' in 'suppresswarnings' to silence this warning")
     if (' i\'m ' in body):
-        if (not supresswarnings(frontmatter, 'skip_i_am_in_text', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_i_am_in_text', filename)):
             log_entries.append("Found lowercase 'i\'m' in text")
-            log_entries.append("  Use 'skip_i_am_in_text' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_i_am_in_text' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1213,8 +1213,8 @@ def check_i_i_am(config, data, filename, init_frontmatter):
 def check_changeme(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_changeme_tag', filename) and
-        supresswarnings(init_frontmatter, 'skip_changeme_category', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_changeme_tag', filename) and
+        suppresswarnings(init_frontmatter, 'skip_changeme_category', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1237,14 +1237,14 @@ def check_changeme(config, data, filename, init_frontmatter):
         categories = []
 
     if ('changeme' in tags):
-        if (not supresswarnings(frontmatter, 'skip_changeme_tag', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_changeme_tag', filename)):
             log_entries.append("Found 'changeme' tag!")
-            log_entries.append("  Use 'skip_changeme_tag' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_changeme_tag' in 'suppresswarnings' to silence this warning")
 
     if ('changeme' in categories):
-        if (not supresswarnings(frontmatter, 'skip_changeme_category', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_changeme_category', filename)):
             log_entries.append("Found 'changeme' category!")
-            log_entries.append("  Use 'skip_changeme_category' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_changeme_category' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1263,7 +1263,7 @@ def check_changeme(config, data, filename, init_frontmatter):
 def check_code_blocks(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_unmatching_code_blocks', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_unmatching_code_blocks', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1285,7 +1285,7 @@ def check_code_blocks(config, data, filename, init_frontmatter):
     if (count_opening_tags > 0 or count_closing_tags > 0):
         if (count_opening_tags != count_closing_tags):
             log_entries.append("Found ummatching fenced code blocks")
-            log_entries.append("  Use 'skip_unmatching_code_blocks' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_unmatching_code_blocks' in 'suppresswarnings' to silence this warning")
             log_entries.append("  Language list: https://gohugo.io/content-management/syntax-highlighting/")
 
     return data
@@ -1305,7 +1305,7 @@ def check_code_blocks(config, data, filename, init_frontmatter):
 def check_psql_code_blocks(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_psql_code', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_psql_code', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1320,7 +1320,7 @@ def check_psql_code_blocks(config, data, filename, init_frontmatter):
 
     if (count_opening_psql_tags > 0):
         log_entries.append("Found 'psql' code blocks, use 'postgresql' instead")
-        log_entries.append("  Use 'skip_psql_code' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_psql_code' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1339,7 +1339,7 @@ def check_psql_code_blocks(config, data, filename, init_frontmatter):
 def check_image_inside_preview(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_image_inside_preview', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_image_inside_preview', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1347,14 +1347,14 @@ def check_image_inside_preview(config, data, filename, init_frontmatter):
     if ('<!--more-->' not in data):
         if ('![' in data):
             log_entries.append("Found image in preview, but no preview separator")
-            log_entries.append("  Use 'skip_image_inside_preview' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_image_inside_preview' in 'suppresswarnings' to silence this warning")
     else:
         body_parts = body.split('<!--more-->')
 
         # only interested in images in the preview
         if ('![' in body_parts[0]):
             log_entries.append("Found image in preview, move it further down")
-            log_entries.append("  Use 'skip_image_inside_preview' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_image_inside_preview' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1373,7 +1373,7 @@ def check_image_inside_preview(config, data, filename, init_frontmatter):
 def check_preview_thumbnail(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_preview_thumbnail', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_preview_thumbnail', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1390,7 +1390,7 @@ def check_preview_thumbnail(config, data, filename, init_frontmatter):
 
     if (thumbnail is None or len(thumbnail) < 1):
         log_entries.append("Found no preview image in header")
-        log_entries.append("  Use 'skip_preview_thumbnail' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_preview_thumbnail' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1409,7 +1409,7 @@ def check_preview_thumbnail(config, data, filename, init_frontmatter):
 def check_preview_description(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_preview_description', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_preview_description', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1426,7 +1426,7 @@ def check_preview_description(config, data, filename, init_frontmatter):
 
     if (description is None or len(description) < 1):
         log_entries.append("Found no preview description in header")
-        log_entries.append("  Use 'skip_preview_description' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_preview_description' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1445,7 +1445,7 @@ def check_preview_description(config, data, filename, init_frontmatter):
 def check_image_size(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_image_size', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_image_size', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1471,7 +1471,7 @@ def check_image_size(config, data, filename, init_frontmatter):
 
     if (len(found_large_files) > 0):
         log_entries.append("Found large images, either resize them or:")
-        log_entries.append("  Use 'skip_image_size' to supress this warning")
+        log_entries.append("  Use 'skip_image_size' to suppress this warning")
         for n in found_large_files:
             log_entries.append("  Large file: {lf}".format(lf = n))
 
@@ -1492,14 +1492,14 @@ def check_image_size(config, data, filename, init_frontmatter):
 def check_dass(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_dass', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_dass', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     if ('daß' in body):
         log_entries.append("Found 'daß' in text")
-        log_entries.append("  Use 'skip_dass' in 'supresswarnings' to silence this warning")
+        log_entries.append("  Use 'skip_dass' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1518,7 +1518,7 @@ def check_dass(config, data, filename, init_frontmatter):
 def check_empty_line_after_header(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_empty_line_after_header', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_header', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1546,7 +1546,7 @@ def check_empty_line_after_header(config, data, filename, init_frontmatter):
         elif (line[0:1] != '#' and last_line_is_header):
             # last line was a header, this line is not empty
             log_entries.append("Missing empty line after header")
-            log_entries.append("  Use 'skip_empty_line_after_header' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_empty_line_after_header' in 'suppresswarnings' to silence this warning")
             log_entries.append("  Header: {h}".format(h = last_header_line))
 
         if (line[0:1] == '#'):
@@ -1570,7 +1570,7 @@ def check_empty_line_after_header(config, data, filename, init_frontmatter):
 def check_empty_line_after_list(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_empty_line_after_list', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_list', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1596,7 +1596,7 @@ def check_empty_line_after_list(config, data, filename, init_frontmatter):
         elif (not line_is_list(line) and last_line_is_list):
             # last line was a list, this line is not empty
             log_entries.append("Missing empty line after list")
-            log_entries.append("  Use 'skip_empty_line_after_list' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_empty_line_after_list' in 'suppresswarnings' to silence this warning")
 
         if (line_is_list(line)):
             last_line_is_list = True
@@ -1618,7 +1618,7 @@ def check_empty_line_after_list(config, data, filename, init_frontmatter):
 def check_empty_line_after_code(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_empty_line_after_code', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_code', filename)):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
@@ -1631,7 +1631,7 @@ def check_empty_line_after_code(config, data, filename, init_frontmatter):
     for line in lines:
         if (last_line_ends_code_block and len(line) > 0):
             log_entries.append("Missing empty line after code block")
-            log_entries.append("  Use 'skip_empty_line_after_code' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_empty_line_after_code' in 'suppresswarnings' to silence this warning")
 
         if (line[0:3] == '```' and not in_code_block):
             in_code_block = True
@@ -1664,9 +1664,9 @@ def check_forbidden_words(config, data, filename, init_frontmatter):
 
     for fb in config.checks['forbidden_words']:
         if (fb in body):
-            if (not supresswarnings(frontmatter, 'skip_forbidden_words_' + fb, filename)):
+            if (not suppresswarnings(frontmatter, 'skip_forbidden_words_' + fb, filename)):
                 log_entries.append("Found forbidden word: {t}".format(t = fb))
-                log_entries.append("  Use 'skip_forbidden_words_{t}' in 'supresswarnings' to silence this warning".format(t = fb))
+                log_entries.append("  Use 'skip_forbidden_words_{t}' in 'suppresswarnings' to silence this warning".format(t = fb))
 
     return data
 
@@ -1707,9 +1707,9 @@ def check_forbidden_websites(config, data, filename, init_frontmatter):
             found_fw = True
 
         if (found_fw):
-            if (not supresswarnings(frontmatter, 'skip_forbidden_websites_' + fw, filename)):
+            if (not suppresswarnings(frontmatter, 'skip_forbidden_websites_' + fw, filename)):
                 log_entries.append("Found forbidden website: {t}".format(t = fw))
-                log_entries.append("  Use 'skip_forbidden_websites_{t}' in 'supresswarnings' to silence this warning".format(t = fw))
+                log_entries.append("  Use 'skip_forbidden_websites_{t}' in 'suppresswarnings' to silence this warning".format(t = fw))
 
     return data
 
@@ -1739,7 +1739,7 @@ def check_header_field_length(config, data, filename, init_frontmatter):
         f, l = list(hfl.items())[0]
 
         if (f not in yml):
-            # can't supress the missing field
+            # can't suppress the missing field
             log_entries.append("Missing Frontmatter entry: {f}".format(f = f))
             continue
 
@@ -1748,9 +1748,9 @@ def check_header_field_length(config, data, filename, init_frontmatter):
         except TypeError:
             fl = 0
         if (fl < l):
-            if (not supresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
+            if (not suppresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
                 log_entries.append("Frontmatter entry too short: {f} ({fl} < {l} chars): {f}".format(f = f, fl = fl, l = l))
-                log_entries.append("  Use 'skip_header_field_length_{f}' in 'supresswarnings' to silence this warning".format(f = f))
+                log_entries.append("  Use 'skip_header_field_length_{f}' in 'suppresswarnings' to silence this warning".format(f = f))
 
     return data
 
@@ -1769,8 +1769,8 @@ def check_header_field_length(config, data, filename, init_frontmatter):
 def check_double_brackets(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_double_brackets_opening', filename) and
-        supresswarnings(init_frontmatter, 'skip_double_brackets_closing', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_double_brackets_opening', filename) and
+        suppresswarnings(init_frontmatter, 'skip_double_brackets_closing', filename)):
         return data
 
 
@@ -1798,14 +1798,14 @@ def check_double_brackets(config, data, filename, init_frontmatter):
     body = "".join(body_lines)
 
     if ('((' in body):
-        if (not supresswarnings(frontmatter, 'skip_double_brackets_opening', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_double_brackets_opening', filename)):
             log_entries.append("Found opening double brackets!")
-            log_entries.append("  Use 'skip_double_brackets_opening' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_double_brackets_opening' in 'suppresswarnings' to silence this warning")
 
     if ('))' in body):
-        if (not supresswarnings(frontmatter, 'skip_double_brackets_closing', filename)):
+        if (not suppresswarnings(frontmatter, 'skip_double_brackets_closing', filename)):
             log_entries.append("Found closing double brackets!")
-            log_entries.append("  Use 'skip_double_brackets_closing' in 'supresswarnings' to silence this warning")
+            log_entries.append("  Use 'skip_double_brackets_closing' in 'suppresswarnings' to silence this warning")
 
     return data
 
@@ -1824,7 +1824,7 @@ def check_double_brackets(config, data, filename, init_frontmatter):
 def do_remove_whitespaces_at_end(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_do_remove_whitespaces_at_end', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_do_remove_whitespaces_at_end', filename)):
         return data
 
     lines = data.splitlines()
@@ -1861,7 +1861,7 @@ def do_remove_whitespaces_at_end(config, data, filename, init_frontmatter):
 def do_replace_broken_links(config, data, filename, init_frontmatter):
     global log_entries
 
-    if (supresswarnings(init_frontmatter, 'skip_do_replace_broken_links', filename)):
+    if (suppresswarnings(init_frontmatter, 'skip_do_replace_broken_links', filename)):
         return data
 
     broken_links = config.checks['broken_links']
