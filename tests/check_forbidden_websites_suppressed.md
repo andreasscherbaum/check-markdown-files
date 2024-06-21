@@ -24,4 +24,4 @@ http://example.invalid
 http://example.invalid/
 http://example.invalid/anotherlink
 
-Also don't allow example.arpa as website.
+Also don't allow https://example.arpa as website.
