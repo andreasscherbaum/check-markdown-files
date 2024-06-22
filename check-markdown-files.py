@@ -50,6 +50,7 @@ class Config:
         self.arguments: Optional[argparse.Namespace] = None
         self.argument_parser: Optional[argparse] = None
         self.configfile: Optional[Path] = None
+        self.configfile_stat: Optional[os.stat_result] = None
         self.config_contents: Optional[str] = None
         self.checks: Dict[str, Any] = {}
 
@@ -88,7 +89,7 @@ class Config:
         return None
 
 
-    def parse_parameters(self) -> None:
+    def parse_parameters(self) -> None: # pylint: disable=R0915
         """
         Parse commandline parameters, fill in array with arguments.
         """
@@ -102,6 +103,7 @@ class Config:
         parser.add_argument('-v', '--verbose', default=False, dest='verbose', action='store_true', help='be more verbose')
         parser.add_argument('-q', '--quiet', default=False, dest='quiet', action='store_true', help='run quietly')
         parser.add_argument('-c', default='', dest='configfile', help="configuration file (default: 'check-markdown-files.conf in repository')")
+        parser.add_argument('-a', '--all', default=False, dest='all', action='store_true', help="run on all files, not only newer files")
         parser.add_argument('-n', default=False, dest='dry_run', action='store_true', help='dry-run (don\'t change anything)')
         parser.add_argument('-r', default=False, dest='replace_quotes', action='store_true', help='replace words with quotes around it ("*...*") with `...`')
         parser.add_argument('-p', default=False, dest='print_dry', action='store_true', help='print result in dry-run mode')
@@ -136,9 +138,12 @@ class Config:
                     self.config_contents = f.read()
             except OSError as e:
                 print("Can't read {c}: {e}".format(c=args.configfile, e=e))
+                sys.exit(1)
         else:
             logging.error("No config file given, and none found in the standard locations.")
             sys.exit(1)
+
+        self.configfile_stat = os.stat(args.configfile)
 
         # remaining arguments must be Markdown files
         for f in args.remainder:
@@ -1982,7 +1987,47 @@ def do_replace_broken_links(config:Config, data:str, filename:str, init_frontmat
     return output
 
 
+# work_on_this_markdown_file()
+#
+# decide if this Markdown file needs to be processed
+#
+# parameter:
+#  - config handle
+#  - filename
+# return:
+#  - True/False
+def work_on_this_markdown_file(config:Config, filename:str) -> bool:
+    """
+    decide if this Markdown file needs to be processed
 
+    if the --all option is not given, then only process files which are
+    younger than the configfile
+    """
+
+    if config.arguments.all:
+        # the --all option is passed, process every file
+        return True
+
+    # compare timestamps
+    last_change_configfile = config.configfile_stat.st_mtime
+    stat_filename = os.stat(filename)
+    last_change_filename = stat_filename.st_mtime
+    if last_change_filename >= last_change_configfile:
+        return True
+
+    # also (briefly) check the content of the file
+    # if it is in 'draft' state, include it in the list
+    try:
+        with open(filename, 'r', encoding="utf-8") as f:
+            file_content = f.read()
+    except OSError as e:
+        print("Can't read {f}: {e}".format(f=filename, e=e))
+        sys.exit(1)
+    # don't really parse Frontmatter, too expensive
+    if 'draft: true' in file_content:
+        return True
+
+    return False
 
 
 #######################################################################
@@ -2007,15 +2052,24 @@ def main() -> int:
         # find all Markdown files
         # only scan directories where blog postings are expected
         # the 'content' directory can have other entries which are not to be checked
+        all_files = []
         directories = ["content/post", "content/posts", "content/blog", "content/blogs"]
         for directory in directories:
             for rootpath, _, files in os.walk(directory):
                 for filename in files:
                     if not filename.endswith(".md"):
                         continue
-                    rc = handle_markdown_file(config, os.path.join(rootpath, filename))
-                    if rc != 0:
-                        global_rc = 1
+                    if not work_on_this_markdown_file(config, os.path.join(rootpath, filename)):
+                        logging.debug("Skipping file (too old): {f}".format(f = os.path.join(rootpath, filename)))
+                        continue
+                    # add the filenames to a list, and sort it later
+                    all_files.append(os.path.join(rootpath, filename))
+
+        all_files.sort(reverse=False)
+        for f in all_files:
+            rc = handle_markdown_file(config, f)
+            if rc != 0:
+                global_rc = 1
 
     return global_rc
 
