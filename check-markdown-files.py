@@ -89,7 +89,7 @@ class Config:
         return None
 
 
-    def parse_parameters(self) -> None: # pylint: disable=R0915
+    def parse_parameters(self) -> None: # pylint: disable=R0915, R0912
         """
         Parse commandline parameters, fill in array with arguments.
         """
@@ -146,17 +146,30 @@ class Config:
         self.configfile_stat = os.stat(args.configfile)
 
         # remaining arguments must be Markdown files
+        remaining_files = []
         for f in args.remainder:
             f = Path(f)
             if not f.exists():
                 logging.error("File ({f}) does not exist!".format(f=f))
                 sys.exit(1)
             if not f.is_file():
+                if f.is_dir():
+                    # this is a directory, see if there is an 'index.md' file inside
+                    index_file = os.path.join(f, 'index.md')
+                    index_file_path = Path(index_file)
+                    if index_file_path.is_file():
+                        # yes, use that file instead
+                        remaining_files.append(index_file)
+                        logging.debug("Use Markdown file: {f}".format(f=index_file))
+                        continue
                 logging.error("Argument ({f}) is not a file!".format(f=f))
                 sys.exit(1)
             if not f.name.endswith('.md'):
                 logging.error("Argument ({f}) is not a Markdown file!".format(f=f))
                 sys.exit(1)
+            # build a new list with files
+            remaining_files.append(f)
+        args.remainder = remaining_files
 
         self.arguments = args
         logging.debug("Commandline arguments successfully parsed")
