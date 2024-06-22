@@ -7,3 +7,11 @@ if [ $RESULT -ne 0 ]; then
     echo "pylint issues found, aborting"
     exit 1
 fi
+
+./run-tests.py -q
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+    echo "Tests are not passing, aborting"
+    exit 1
+fi

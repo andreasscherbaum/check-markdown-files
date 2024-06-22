@@ -384,7 +384,8 @@ if __name__ == "__main__":
         else:
             logging.info("  Test FAIL")
             fail_count += 1
-        print("")
+        if confighandle.arguments.quiet is False:
+            print("")
 
     print("Tests:      {c}".format(c = len(tests)))
     print("Tests OK:   {c}".format(c = ok_count))
