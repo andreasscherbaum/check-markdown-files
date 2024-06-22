@@ -1,0 +1,9 @@
+#!/bin/sh
+
+pylint check-markdown-files.py run-tests.py
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+    echo "pylint issues found, aborting"
+    exit 1
+fi
