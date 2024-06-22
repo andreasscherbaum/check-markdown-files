@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+Check Markdown files for blog postings for common errors
+"""
+
+# pylint: disable=C0209, C0301, C0302, W1202
+
 # run pre-flight checks on Markdown postings
 # before committing the blog postings into git
 # can be used standalone to check blog postings
@@ -8,14 +14,11 @@ import os
 import sys
 import re
 from pathlib import Path
-import shutil
 import logging
 import argparse
-from pprint import pprint
 from typing import Optional, Dict, Any
 
 import yaml
-import requests
 
 
 # start with 'info', can be overriden by '-q' later on
@@ -28,22 +31,39 @@ log_entries = []
 # Config class
 
 class Config:
+    """
+    Configuration class
+
+    Methods:
+    __init__(Config) -> Config: Constructor
+    find_configfile(Config, this_dir(str))
+    parse_parameters(Config) -> None
+    read_config(Config) -> None
+    files(Config) -> list[str]:
+    """
 
     def __init__(self) -> None:
-        self.__cmdline_read: bool = False
+        """
+        Initialize the Config class.
+        """
+
         self.arguments: Optional[argparse.Namespace] = None
         self.argument_parser: Optional[argparse] = None
         self.configfile: Optional[Path] = None
         self.config_contents: Optional[str] = None
         self.checks: Dict[str, Any] = {}
 
+
     def find_configfile(self, this_dir: Optional[Path] = None) -> Optional[Path]:
         """
+        Searches for ``check-markdown-files.conf`` tree-upwards
+
         Searches for ``check-markdown-files.conf`` tree-upwards,
         starting in ``this_dir``, stops when it finds a ``.git`` directory or reaches ``/``.
-        If ``this_dir`` is None, we start from ``os.getcwd()``.
+        If ``this_dir`` is None, it starts from ``os.getcwd()``.
 
-        :returns: A ``Path`` to the config file, or ``None`` if no config file can be found.
+        Returns:
+            str: a ``Path`` to the config file, or ``None`` if no config file can be found.
         """
         if this_dir is None:
             this_dir = os.getcwd()
@@ -64,12 +84,15 @@ class Config:
                 return None
 
         logging.error("Reached root directory, stopping search for configfile")
+
         return None
+
 
     def parse_parameters(self) -> None:
         """
-        parse commandline parameters, fill in array with arguments.
+        Parse commandline parameters, fill in array with arguments.
         """
+
         parser = argparse.ArgumentParser(description='Check Markdown files before publishing blog postings',
                                          add_help=False)
         self.argument_parser = parser
@@ -109,7 +132,7 @@ class Config:
 
         if args.configfile:
             try:
-                with open(args.configfile, 'r') as f:
+                with open(args.configfile, 'r', encoding="utf-8") as f:
                     self.config_contents = f.read()
             except OSError as e:
                 print("Can't read {c}: {e}".format(c=args.configfile, e=e))
@@ -133,12 +156,12 @@ class Config:
         self.arguments = args
         logging.debug("Commandline arguments successfully parsed")
 
-        return
 
-    def read_config(self) -> None:
+    def read_config(self) -> None: # pylint: disable=R0912, R0915
         """
         Sanity check for the configuration file.
         """
+
         # first set defaults
         # disable all checks here, as default
         self.checks['check_whitespaces_at_end'] = False
@@ -193,7 +216,7 @@ class Config:
                 config_keys = list(self.checks.keys())
                 for key in config_keys:
                     if key in config_data:
-                        if type(config_data[key]) is bool:
+                        if isinstance(config_data[key], bool):
                             self.checks[key] = config_data[key]
                         elif config_data[key] in ["1", "y", "yes"]:
                             self.checks[key] = True
@@ -343,15 +366,15 @@ class Config:
                 sys.exit(1)
             self.checks['header_field_length'] = config_data['header_field_length']
             for data in config_data['header_field_length']:
-                if (not isinstance(data, dict)):
+                if not isinstance(data, dict):
                     logging.error("Header field entry must be a dict!")
                     logging.error("Data: {d}".format(d = str(data)))
                     sys.exit(1)
-                h, l = list(data.items())[0]
+                _, l = list(data.items())[0]
                 try:
                     # make this an integer, has to be an integer anyway
                     l = int(l)
-                    if (l < 0):
+                    if l < 0:
                         logging.error("Length must be greater zero!")
                         logging.error("Data: {d}".format(d = str(data)))
                         sys.exit(1)
@@ -364,7 +387,11 @@ class Config:
                     logging.error("Data: {d}".format(d = str(data)))
                     sys.exit(1)
 
-    def files(self):
+    def files(self) -> list[str]:
+        """
+        Return the list of remaining command line arguments (files)
+        """
+
         return self.arguments.remainder
 
 
@@ -377,18 +404,21 @@ class Config:
 
 # handle_markdown_file()
 #
-# handle the checks for a single Markdown filr
+# handle the checks for a single Markdown file
 #
 # parameter:
 #  - config handle
 #  - filename of Markdown file
 # return:
 #  - 0/1 (0: ok, 1: something wrong or changed)
-def handle_markdown_file(config, filename):
-    global log_entries
+def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R0912, R0915
+    """
+    handle the checks for a single Markdown file
+    """
+    global log_entries # pylint: disable=W0603
 
     logging.debug("Working on file: {f}".format(f = filename))
-    with open(filename) as fh:
+    with open(filename, encoding="utf-8") as fh:
         data = fh.read()
 
 
@@ -399,120 +429,120 @@ def handle_markdown_file(config, filename):
     # work on a copy of the original content
     output = data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if (config.checks['check_whitespaces_at_end']):
+    if config.checks['check_whitespaces_at_end']:
         output = check_whitespaces_at_end(config, output, filename, frontmatter)
 
-    if (config.checks['check_find_more_separator']):
+    if config.checks['check_find_more_separator']:
         output = check_find_more_separator(config, output, filename, frontmatter)
 
-    if (config.checks['check_find_3_headline']):
+    if config.checks['check_find_3_headline']:
         output = check_find_3_headline(config, output, filename, frontmatter)
 
-    if (config.checks['check_find_4_headline']):
+    if config.checks['check_find_4_headline']:
         output = check_find_4_headline(config, output, filename, frontmatter)
 
-    if (config.checks['check_find_5_headline']):
+    if config.checks['check_find_5_headline']:
         output = check_find_5_headline(config, output, filename, frontmatter)
 
-    if (config.checks['check_missing_tags']):
+    if config.checks['check_missing_tags']:
         output = check_missing_tags(config, output, filename, frontmatter)
 
-    if (config.checks['check_missing_words_as_tags']):
+    if config.checks['check_missing_words_as_tags']:
         output = check_missing_words_as_tags(config, output, filename, frontmatter)
 
-    if (config.checks['check_lowercase_tags']):
+    if config.checks['check_lowercase_tags']:
         output = check_lowercase_tags(config, output, filename, frontmatter)
 
-    if (config.checks['check_lowercase_categories']):
+    if config.checks['check_lowercase_categories']:
         output = check_lowercase_categories(config, output, filename, frontmatter)
 
-    if (config.checks['check_missing_other_tags_one_way']):
+    if config.checks['check_missing_other_tags_one_way']:
         output = check_missing_other_tags_one_way(config, output, filename, frontmatter)
 
-    if (config.checks['check_missing_other_tags_both_ways']):
+    if config.checks['check_missing_other_tags_both_ways']:
         output = check_missing_other_tags_both_ways(config, output, filename, frontmatter)
 
-    if (config.checks['check_missing_cursive']):
+    if config.checks['check_missing_cursive']:
         output = check_missing_cursive(config, output, filename, frontmatter)
 
-    if (config.checks['check_http_link']):
+    if config.checks['check_http_link']:
         output = check_http_link(config, output, filename, frontmatter)
 
-    if (config.checks['check_hugo_localhost']):
+    if config.checks['check_hugo_localhost']:
         output = check_hugo_localhost(config, output, filename, frontmatter)
 
-    if (config.checks['check_i_i_am']):
+    if config.checks['check_i_i_am']:
         output = check_i_i_am(config, output, filename, frontmatter)
 
-    if (config.checks['check_changeme']):
+    if config.checks['check_changeme']:
         output = check_changeme(config, output, filename, frontmatter)
 
-    if (config.checks['check_code_blocks']):
+    if config.checks['check_code_blocks']:
         output = check_code_blocks(config, output, filename, frontmatter)
 
-    if (config.checks['check_psql_code_blocks']):
+    if config.checks['check_psql_code_blocks']:
         output = check_psql_code_blocks(config, output, filename, frontmatter)
 
-    if (config.checks['check_image_inside_preview']):
+    if config.checks['check_image_inside_preview']:
         output = check_image_inside_preview(config, output, filename, frontmatter)
 
-    if (config.checks['check_preview_thumbnail']):
+    if config.checks['check_preview_thumbnail']:
         output = check_preview_thumbnail(config, output, filename, frontmatter)
 
-    if (config.checks['check_preview_description']):
+    if config.checks['check_preview_description']:
         output = check_preview_description(config, output, filename, frontmatter)
 
-    if (config.checks['check_image_size']):
+    if config.checks['check_image_size']:
         output = check_image_size(config, output, filename, frontmatter)
 
-    if (config.checks['check_dass']):
+    if config.checks['check_dass']:
         output = check_dass(config, output, filename, frontmatter)
 
-    if (config.checks['check_empty_line_after_header']):
+    if config.checks['check_empty_line_after_header']:
         output = check_empty_line_after_header(config, output, filename, frontmatter)
 
-    if (config.checks['check_empty_line_after_list']):
+    if config.checks['check_empty_line_after_list']:
         output = check_empty_line_after_list(config, output, filename, frontmatter)
 
-    if (config.checks['check_empty_line_after_code']):
+    if config.checks['check_empty_line_after_code']:
         output = check_empty_line_after_code(config, output, filename, frontmatter)
 
-    if (config.checks['check_forbidden_words']):
+    if config.checks['check_forbidden_words']:
         output = check_forbidden_words(config, output, filename, frontmatter)
 
-    if (config.checks['check_forbidden_websites']):
+    if config.checks['check_forbidden_websites']:
         output = check_forbidden_websites(config, output, filename, frontmatter)
 
-    if (config.checks['check_header_field_length']):
+    if config.checks['check_header_field_length']:
         output = check_header_field_length(config, output, filename, frontmatter)
 
-    if (config.checks['check_double_brackets']):
+    if config.checks['check_double_brackets']:
         output = check_double_brackets(config, output, filename, frontmatter)
 
-    if (config.checks['do_remove_whitespaces_at_end']):
+    if config.checks['do_remove_whitespaces_at_end']:
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
 
-    if (config.checks['do_replace_broken_links']):
+    if config.checks['do_replace_broken_links']:
         output = do_replace_broken_links(config, output, filename, frontmatter)
 
-    if (len(log_entries) > 0):
+    if len(log_entries) > 0:
         rc = 1
         print("File: {f}".format(f = os.path.realpath(filename)))
         for i in log_entries:
             print(i)
 
-    if (output != data):
+    if output != data:
         rc = 1
         logging.info("File is CHANGED!")
-        if (config.arguments.dry_run):
-            if (config.arguments.print_dry):
+        if config.arguments.dry_run:
+            if config.arguments.print_dry:
                 logging.debug("Dry-run mode, output file:")
                 print(output)
         else:
             logging.info("Write changed file ({f})".format(f = filename))
-            with open(filename, "w") as fh:
+            with open(filename, "w", encoding="utf-8") as fh:
                 fh.write(output)
     else:
         logging.debug("File is unchanged")
@@ -530,14 +560,18 @@ def handle_markdown_file(config, filename):
 # return:
 #  - frontmatter
 #  - markdown
-def split_file_into_frontmatter_and_markdown(data, filename):
-    if (data[0:4] != "---\n"):
+def split_file_into_frontmatter_and_markdown(data:str, filename:str) -> list[str, str]:
+    """
+    separate the Frontmatter header and the Markdown content
+    """
+
+    if data[0:4] != "---\n":
         logging.error("Content does not start with Frontmatter!")
         logging.error("File: {f}".format(f = filename))
         sys.exit(1)
 
     parts = re.search(r'^---\n(.*?)\n---\n(.*)$', data, re.DOTALL)
-    if (not parts):
+    if not parts:
         logging.error("Can't extract Frontmatter from data!")
         logging.error("File: {f}".format(f = filename))
         sys.exit(1)
@@ -558,21 +592,25 @@ def split_file_into_frontmatter_and_markdown(data, filename):
 #  - current filename
 # return:
 #  - True/False
-def suppresswarnings(frontmatter, name, filename):
+def suppresswarnings(frontmatter:str, name:str, filename:str) -> bool:
+    """
+    find out if a warning should be suppressed
+    """
+
     try:
         yml = yaml.safe_load(frontmatter)
     except yaml.YAMLError as e:
         logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
         sys.exit(1)
-    if ('suppresswarnings' not in yml):
+    if 'suppresswarnings' not in yml:
         # nothing in Fromtmatter
         return False
 
     sw = yml['suppresswarnings']
-    if (sw is None):
+    if sw is None:
         # it's empty
         return False
-    if (name in sw):
+    if name in sw:
         return True
 
     return False
@@ -588,7 +626,11 @@ def suppresswarnings(frontmatter, name, filename):
 #  - list of tokens
 #  - unique list of tokens
 #  - lowercase list of unique tokens list
-def split_text_into_tokens(data):
+def split_text_into_tokens(data:str) -> list[list, list, list]:
+    """
+    split a text and separate it into word tokens
+    """
+
     body = data.replace("\n", " ")
     body = body.replace(",", " ")
     body = body.replace(".", " ")
@@ -608,7 +650,11 @@ def split_text_into_tokens(data):
 #  - line with text
 # return:
 #  - True/False
-def line_is_list(line):
+def line_is_list(line:str) -> bool:
+    """
+    find out if the current line is part of a list
+    """
+
     list_pattern = re.compile(r'^\s*([-*+]|\d+\.)\s+.*', re.MULTILINE)
 
     return bool(list_pattern.match(line))
@@ -629,29 +675,31 @@ def line_is_list(line):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_whitespaces_at_end(config, data, filename, init_frontmatter):
-    global log_entries
+def check_whitespaces_at_end(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if lines end in whitespaces
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_whitespaces_at_end', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_whitespaces_at_end', filename):
         return data
 
     lines = data.splitlines()
     found_whitespaces = 0
     for line in lines:
-        if (len(line) == 0):
+        if len(line) == 0:
             pass
         else:
-            if (line[0] == '>'):
+            if line[0] == '>':
                 # that's a quote, do not remove spaces at the end
                 pass
             else:
-                if (line != line.rstrip()):
+                if line != line.rstrip():
                     found_whitespaces += 1
 
-    if (found_whitespaces > 1):
+    if found_whitespaces > 1:
         log_entries.append("Found {n} lines with whitespaces at the end".format(n = found_whitespaces))
         log_entries.append("  Use 'skip_whitespaces_at_end' in 'suppresswarnings' to silence this warning")
-    elif (found_whitespaces == 1):
+    elif found_whitespaces == 1:
         log_entries.append("Found 1 line with whitespaces at the end")
         log_entries.append("  Use 'skip_whitespaces_at_end' in 'suppresswarnings' to silence this warning")
 
@@ -669,16 +717,18 @@ def check_whitespaces_at_end(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_find_more_separator(config, data, filename, init_frontmatter):
-    global log_entries
+def check_find_more_separator(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if a <!--more--> separator exists in Markdown
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_more_separator', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_more_separator', filename):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('<!--more-->' not in body):
-        if (not suppresswarnings(frontmatter, 'more_separator', filename)):
+    if '<!--more-->' not in body:
+        if not suppresswarnings(frontmatter, 'more_separator', filename):
             log_entries.append("Missing '<!--more-->' separator in Markdown!")
             log_entries.append("  Use 'skip_more_separator' in 'suppresswarnings' to silence this warning")
 
@@ -696,16 +746,18 @@ def check_find_more_separator(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_find_3_headline(config, data, filename, init_frontmatter):
-    global log_entries
+def check_find_3_headline(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if level 3 headlines are in the content
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_headline3', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_headline3', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('### ' in data):
-        if (not suppresswarnings(frontmatter, 'headline3', filename)):
+    if '### ' in data:
+        if not suppresswarnings(frontmatter, 'headline3', filename):
             log_entries.append("Headline 3 in Markdown!")
             log_entries.append("  Use 'skip_headline3' in 'suppresswarnings' to silence this warning")
 
@@ -723,16 +775,18 @@ def check_find_3_headline(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_find_4_headline(config, data, filename, init_frontmatter):
-    global log_entries
+def check_find_4_headline(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if level 4 headlines are in the content
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_headline4', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_headline4', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('#### ' in data):
-        if (not suppresswarnings(frontmatter, 'headline4', filename)):
+    if '#### ' in data:
+        if not suppresswarnings(frontmatter, 'headline4', filename):
             log_entries.append("Headline 4 in Markdown!")
             log_entries.append("  Use 'skip_headline4' in 'suppresswarnings' to silence this warning")
 
@@ -750,16 +804,18 @@ def check_find_4_headline(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_find_5_headline(config, data, filename, init_frontmatter):
-    global log_entries
+def check_find_5_headline(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if level 5 headlines are in the content
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_headline5', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_headline5', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('##### ' in data):
-        if (not suppresswarnings(frontmatter, 'headline5', filename)):
+    if '##### ' in data:
+        if not suppresswarnings(frontmatter, 'headline5', filename):
             log_entries.append("Headline 5 in Markdown!")
             log_entries.append("  Use 'skip_headline5' in 'suppresswarnings' to silence this warning")
 
@@ -777,12 +833,14 @@ def check_find_5_headline(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_missing_tags(config, data, filename, init_frontmatter):
-    global log_entries
+def check_missing_tags(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check which tags should be in the posting, based on content
+    """
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    tokens, unique_tokens, lc_tokens = split_text_into_tokens(body)
+    _, _, lc_tokens = split_text_into_tokens(body)
     lc_tokens = [x.strip('*') for x in lc_tokens]
     lc_tokens = [x.strip('`') for x in lc_tokens]
 
@@ -798,7 +856,7 @@ def check_missing_tags(config, data, filename, init_frontmatter):
         return data
     body_string = data.replace("\n", " ")
 
-    if (not isinstance(tags, list)):
+    if not isinstance(tags, list):
         log_entries.append("Tags is not a list!")
         return data
 
@@ -806,16 +864,16 @@ def check_missing_tags(config, data, filename, init_frontmatter):
         word = mt[0]
         tag = mt[1]
         tag_not_found = False
-        if (word in body_string):
-            if (tag not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
+        if word in body_string:
+            if tag not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename):
                     tag_not_found = True
-        if (word in lc_tokens):
-            if (tag not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename)):
+        if word in lc_tokens:
+            if tag not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_tags_' + tag, filename):
                     tag_not_found = True
 
-        if (tag_not_found):
+        if tag_not_found:
             log_entries.append("'{t}' tag is missing".format(t = tag))
             log_entries.append("  Use 'skip_missing_tags_{t}' in 'suppresswarnings' to silence this warning".format(t = tag))
 
@@ -833,12 +891,14 @@ def check_missing_tags(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_missing_words_as_tags(config, data, filename, init_frontmatter):
-    global log_entries
+def check_missing_words_as_tags(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check which words should also be tags
+    """
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    tokens, unique_tokens, lc_tokens = split_text_into_tokens(body)
+    _, _, lc_tokens = split_text_into_tokens(body)
     lc_tokens = [x.strip('*') for x in lc_tokens]
     lc_tokens = [x.strip('`') for x in lc_tokens]
 
@@ -852,21 +912,20 @@ def check_missing_words_as_tags(config, data, filename, init_frontmatter):
     except KeyError:
         log_entries.append("No tags found!")
         return data
-    body_string = data.replace("\n", " ")
 
-    if (not isinstance(tags, list)):
+    if not isinstance(tags, list):
         log_entries.append("Tags is not a list!")
         return data
 
     for mt in config.checks['missing_words']:
         word = mt.lower()
         tag_not_found = False
-        if (word in lc_tokens):
-            if (word not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_words_' + word, filename)):
+        if word in lc_tokens:
+            if word not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_words_' + word, filename):
                     tag_not_found = True
 
-        if (tag_not_found):
+        if tag_not_found:
             log_entries.append("'{t}' tag is missing".format(t = word))
             log_entries.append("  Use 'skip_missing_words_{t}' in 'suppresswarnings' to silence this warning".format(t = word))
 
@@ -884,13 +943,15 @@ def check_missing_words_as_tags(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_lowercase_tags(config, data, filename, init_frontmatter):
-    global log_entries
+def check_lowercase_tags(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    make sure that all tags follow a uniform format
+    """
 
     # tags should be lowercase, no spaces,
     # and not include characters which must be escaped in the URL
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -902,9 +963,8 @@ def check_lowercase_tags(config, data, filename, init_frontmatter):
     except KeyError:
         log_entries.append("No tags found!")
         return data
-    body_string = data.replace("\n", " ")
 
-    if (not isinstance(tags, list)):
+    if not isinstance(tags, list):
         log_entries.append("Tags is not a list!")
         return data
 
@@ -918,7 +978,7 @@ def check_lowercase_tags(config, data, filename, init_frontmatter):
             logging.error("File: {f}".format(f = filename))
             logging.error("Tag: {tag}".format(tag = str(tag)))
             sys.exit(1)
-        if (result):
+        if result:
             # tag does not match regex, raise an error
             # do not allow skipping this error, instead disable this check
             log_entries.append("Invalid tag: {t}".format(t = tag))
@@ -937,13 +997,15 @@ def check_lowercase_tags(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_lowercase_categories(config, data, filename, init_frontmatter):
-    global log_entries
+def check_lowercase_categories(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    make sure that all categories follow a uniform format
+    """
 
     # categories should be lowercase, no spaces,
     # and not include characters which must be escaped in the URL
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -955,9 +1017,8 @@ def check_lowercase_categories(config, data, filename, init_frontmatter):
     except KeyError:
         log_entries.append("No categories found!")
         return data
-    body_string = data.replace("\n", " ")
 
-    if (not isinstance(categories, list)):
+    if not isinstance(categories, list):
         log_entries.append("Categories is not a list!")
         return data
 
@@ -971,7 +1032,7 @@ def check_lowercase_categories(config, data, filename, init_frontmatter):
             logging.error("File: {f}".format(f = filename))
             logging.error("Category: {category}".format(category = str(category)))
             sys.exit(1)
-        if (result):
+        if result:
             # category does not match regex, raise an error
             # do not allow skipping this error, instead disable this check
             log_entries.append("Invalid category: {t}".format(t = category))
@@ -990,10 +1051,12 @@ def check_lowercase_categories(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_missing_other_tags_one_way(config, data, filename, init_frontmatter):
-    global log_entries
+def check_missing_other_tags_one_way(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check which other tags should be in the posting, based on existing tags
+    """
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -1005,18 +1068,17 @@ def check_missing_other_tags_one_way(config, data, filename, init_frontmatter):
     except KeyError:
         log_entries.append("No tags found!")
         return data
-    body_string = data.replace("\n", " ")
 
-    if (not isinstance(tags, list)):
+    if not isinstance(tags, list):
         log_entries.append("Tags is not a list!")
         return data
 
     for mt in config.checks['missing_other_tags_one_way']:
         tag1 = mt[0]
         tag2 = mt[1]
-        if (tag1 in tags):
-            if (tag2 not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_one_way_' + tag1 + '_' + tag2, filename)):
+        if tag1 in tags:
+            if tag2 not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_other_tags_one_way_' + tag1 + '_' + tag2, filename):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
                     log_entries.append("  Use 'skip_missing_other_tags_one_way_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
 
@@ -1034,10 +1096,12 @@ def check_missing_other_tags_one_way(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_missing_other_tags_both_ways(config, data, filename, init_frontmatter):
-    global log_entries
+def check_missing_other_tags_both_ways(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check which other tags should be in the posting, based on existing tags
+    """
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -1049,25 +1113,24 @@ def check_missing_other_tags_both_ways(config, data, filename, init_frontmatter)
     except KeyError:
         log_entries.append("No tags found!")
         return data
-    body_string = data.replace("\n", " ")
 
-    if (not isinstance(tags, list)):
+    if not isinstance(tags, list):
         log_entries.append("Tags is not a list!")
         return data
 
     for mt in config.checks['missing_other_tags_both_ways']:
         tag1 = mt[0]
         tag2 = mt[1]
-        if (tag1 in tags):
-            if (tag2 not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
+        if tag1 in tags:
+            if tag2 not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
                     log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
         tag1 = mt[1]
         tag2 = mt[0]
-        if (tag1 in tags):
-            if (tag2 not in tags):
-                if (not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename)):
+        if tag1 in tags:
+            if tag2 not in tags:
+                if not suppresswarnings(frontmatter, 'skip_missing_other_tags_both_ways_' + tag1 + '_' + tag2, filename):
                     log_entries.append("Found '{t1}' tag but '{t2}' tag is missing".format(t1 = tag1, t2 = tag2))
                     log_entries.append("  Use 'skip_missing_other_tags_both_ways_{t1}_{t2}' in 'suppresswarnings' to silence this warning".format(t1 = tag1, t2 = tag2))
 
@@ -1085,29 +1148,31 @@ def check_missing_other_tags_both_ways(config, data, filename, init_frontmatter)
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_missing_cursive(config, data, filename, init_frontmatter):
-    global log_entries
+def check_missing_cursive(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if words should be cursive
+    """
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
     lines2 = []
     for line in lines:
-        if (line.startswith('#')):
+        if line.startswith('#'):
             # skip headlines
             pass
-        elif (line.startswith('>')):
+        elif line.startswith('>'):
             # skip quotes
             pass
         else:
             lines2.append(line)
     body = "\n".join(lines2)
 
-    tokens, unique_tokens, lc_tokens = split_text_into_tokens(body)
+    _, unique_tokens, _ = split_text_into_tokens(body)
 
     for mc in config.checks['missing_cursive']:
-        if (mc in unique_tokens):
-            if (not suppresswarnings(frontmatter, 'skip_missing_cursive_' + mc, filename)):
+        if mc in unique_tokens:
+            if not suppresswarnings(frontmatter, 'skip_missing_cursive_' + mc, filename):
                 log_entries.append("Found non-cursive token: {t}".format(t = mc))
                 log_entries.append("  Use 'skip_missing_cursive_{t}' in 'suppresswarnings' to silence this warning".format(t = mc))
 
@@ -1125,15 +1190,17 @@ def check_missing_cursive(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_http_link(config, data, filename, init_frontmatter):
-    global log_entries
+def check_http_link(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if http links are in the document (should be https)
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_httplink', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_httplink', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('http://' in body):
+    if 'http://' in body:
         log_entries.append("Found 'http://' link")
         log_entries.append("  Use 'skip_httplink' in 'suppresswarnings' to silence this warning")
 
@@ -1151,15 +1218,17 @@ def check_http_link(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_hugo_localhost(config, data, filename, init_frontmatter):
-    global log_entries
+def check_hugo_localhost(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if a Hugo localhost (preview) link appears in the document
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_hugo_localhost', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_hugo_localhost', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('http://localhost:1313/' in body):
+    if 'http://localhost:1313/' in body:
         log_entries.append("Found Hugo preview link")
         log_entries.append("  Use 'skip_hugo_localhost' in 'suppresswarnings' to silence this warning")
 
@@ -1177,22 +1246,23 @@ def check_hugo_localhost(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_i_i_am(config, data, filename, init_frontmatter):
-    global log_entries
+def check_i_i_am(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if lowercase "i" or "i'm" appear in the text
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_i_in_text', filename) and
-        suppresswarnings(init_frontmatter, 'skip_i_am_in_text', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_i_in_text', filename) and suppresswarnings(init_frontmatter, 'skip_i_am_in_text', filename):
         return data
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     body = body.replace("\n", " ")
-    if (' i ' in body):
-        if (not suppresswarnings(frontmatter, 'skip_i_in_text', filename)):
+    if ' i ' in body:
+        if not suppresswarnings(frontmatter, 'skip_i_in_text', filename):
             log_entries.append("Found lowercase 'i' in text")
             log_entries.append("  Use 'skip_i_in_text' in 'suppresswarnings' to silence this warning")
-    if (' i\'m ' in body):
-        if (not suppresswarnings(frontmatter, 'skip_i_am_in_text', filename)):
+    if ' i\'m ' in body:
+        if not suppresswarnings(frontmatter, 'skip_i_am_in_text', filename):
             log_entries.append("Found lowercase 'i\'m' in text")
             log_entries.append("  Use 'skip_i_am_in_text' in 'suppresswarnings' to silence this warning")
 
@@ -1210,14 +1280,15 @@ def check_i_i_am(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_changeme(config, data, filename, init_frontmatter):
-    global log_entries
+def check_changeme(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if 'changeme' appears in tags or categories
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_changeme_tag', filename) and
-        suppresswarnings(init_frontmatter, 'skip_changeme_category', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_changeme_tag', filename) and suppresswarnings(init_frontmatter, 'skip_changeme_category', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -1236,13 +1307,13 @@ def check_changeme(config, data, filename, init_frontmatter):
         log_entries.append("No categories found!")
         categories = []
 
-    if ('changeme' in tags):
-        if (not suppresswarnings(frontmatter, 'skip_changeme_tag', filename)):
+    if 'changeme' in tags:
+        if not suppresswarnings(frontmatter, 'skip_changeme_tag', filename):
             log_entries.append("Found 'changeme' tag!")
             log_entries.append("  Use 'skip_changeme_tag' in 'suppresswarnings' to silence this warning")
 
-    if ('changeme' in categories):
-        if (not suppresswarnings(frontmatter, 'skip_changeme_category', filename)):
+    if 'changeme' in categories:
+        if not suppresswarnings(frontmatter, 'skip_changeme_category', filename):
             log_entries.append("Found 'changeme' category!")
             log_entries.append("  Use 'skip_changeme_category' in 'suppresswarnings' to silence this warning")
 
@@ -1260,13 +1331,15 @@ def check_changeme(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_code_blocks(config, data, filename, init_frontmatter):
-    global log_entries
+def check_code_blocks(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if every code block has a syntax highlighting type specified
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_unmatching_code_blocks', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_unmatching_code_blocks', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
 
@@ -1277,13 +1350,13 @@ def check_code_blocks(config, data, filename, init_frontmatter):
     # like: ```natural, or ```basic
 
     for line in lines:
-        if (line[0:3] == '```' and len(line) > 3):
+        if line[0:3] == '```' and len(line) > 3:
             count_opening_tags += 1
-        if (line == '```'):
+        if line == '```':
             count_closing_tags += 1
 
-    if (count_opening_tags > 0 or count_closing_tags > 0):
-        if (count_opening_tags != count_closing_tags):
+    if count_opening_tags > 0 or count_closing_tags > 0:
+        if count_opening_tags != count_closing_tags:
             log_entries.append("Found ummatching fenced code blocks")
             log_entries.append("  Use 'skip_unmatching_code_blocks' in 'suppresswarnings' to silence this warning")
             log_entries.append("  Language list: https://gohugo.io/content-management/syntax-highlighting/")
@@ -1302,23 +1375,25 @@ def check_code_blocks(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_psql_code_blocks(config, data, filename, init_frontmatter):
-    global log_entries
+def check_psql_code_blocks(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if 'changeme' appears in tags or categories
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_psql_code', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_psql_code', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
 
     count_opening_psql_tags = 0
 
     for line in lines:
-        if (line == '```psql' or line == '````psql'):
+        if line in ('```psql', '````psql'):
             count_opening_psql_tags += 1
 
-    if (count_opening_psql_tags > 0):
+    if count_opening_psql_tags > 0:
         log_entries.append("Found 'psql' code blocks, use 'postgresql' instead")
         log_entries.append("  Use 'skip_psql_code' in 'suppresswarnings' to silence this warning")
 
@@ -1336,23 +1411,25 @@ def check_psql_code_blocks(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_image_inside_preview(config, data, filename, init_frontmatter):
-    global log_entries
+def check_image_inside_preview(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if there is an image inside the preview
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_image_inside_preview', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_image_inside_preview', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('<!--more-->' not in data):
-        if ('![' in data):
+    if '<!--more-->' not in data:
+        if '![' in data:
             log_entries.append("Found image in preview, but no preview separator")
             log_entries.append("  Use 'skip_image_inside_preview' in 'suppresswarnings' to silence this warning")
     else:
         body_parts = body.split('<!--more-->')
 
         # only interested in images in the preview
-        if ('![' in body_parts[0]):
+        if '![' in body_parts[0]:
             log_entries.append("Found image in preview, move it further down")
             log_entries.append("  Use 'skip_image_inside_preview' in 'suppresswarnings' to silence this warning")
 
@@ -1370,13 +1447,15 @@ def check_image_inside_preview(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_preview_thumbnail(config, data, filename, init_frontmatter):
-    global log_entries
+def check_preview_thumbnail(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if a preview image is specified
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_preview_thumbnail', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_preview_thumbnail', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -1388,7 +1467,7 @@ def check_preview_thumbnail(config, data, filename, init_frontmatter):
     except KeyError:
         thumbnail = ''
 
-    if (thumbnail is None or len(thumbnail) < 1):
+    if thumbnail is None or len(thumbnail) < 1:
         log_entries.append("Found no preview image in header")
         log_entries.append("  Use 'skip_preview_thumbnail' in 'suppresswarnings' to silence this warning")
 
@@ -1406,13 +1485,15 @@ def check_preview_thumbnail(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_preview_description(config, data, filename, init_frontmatter):
-    global log_entries
+def check_preview_description(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if a preview description is specified
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_preview_description', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_preview_description', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
 
     try:
         yml = yaml.safe_load(frontmatter)
@@ -1424,7 +1505,7 @@ def check_preview_description(config, data, filename, init_frontmatter):
     except KeyError:
         description = ''
 
-    if (description is None or len(description) < 1):
+    if description is None or len(description) < 1:
         log_entries.append("Found no preview description in header")
         log_entries.append("  Use 'skip_preview_description' in 'suppresswarnings' to silence this warning")
 
@@ -1442,13 +1523,13 @@ def check_preview_description(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_image_size(config, data, filename, init_frontmatter):
-    global log_entries
+def check_image_size(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if larger images are present
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_image_size', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_image_size', filename):
         return data
-
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     # this scans the same directory as the Markdown file
     # and therefore only works for Hugo Page Bundles
@@ -1459,17 +1540,17 @@ def check_image_size(config, data, filename, init_frontmatter):
 
     dirname = os.path.dirname(filename)
     found_large_files = []
-    for rootdir, dirnames, filenames in os.walk(dirname):
+    for rootdir, _, filenames in os.walk(dirname):
         for this_filename in filenames:
-            if (rootdir != dirname):
+            if rootdir != dirname:
                 # only want files in the same directory
                 continue
             this_file = os.path.join(rootdir, this_filename)
             this_stat = os.stat(this_file)
-            if (this_stat.st_size > max_image_size):
+            if this_stat.st_size > max_image_size:
                 found_large_files.append(this_file)
 
-    if (len(found_large_files) > 0):
+    if len(found_large_files) > 0:
         log_entries.append("Found large images, either resize them or:")
         log_entries.append("  Use 'skip_image_size' to suppress this warning")
         for n in found_large_files:
@@ -1489,15 +1570,17 @@ def check_image_size(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_dass(config, data, filename, init_frontmatter):
-    global log_entries
+def check_dass(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if the German 'daß' appears in the text
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_dass', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_dass', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
-    if ('daß' in body):
+    if 'daß' in body:
         log_entries.append("Found 'daß' in text")
         log_entries.append("  Use 'skip_dass' in 'suppresswarnings' to silence this warning")
 
@@ -1515,13 +1598,15 @@ def check_dass(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_empty_line_after_header(config, data, filename, init_frontmatter):
-    global log_entries
+def check_empty_line_after_header(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check for empty lines after headers
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_header', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_empty_line_after_header', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
 
@@ -1530,26 +1615,26 @@ def check_empty_line_after_header(config, data, filename, init_frontmatter):
     in_code_block = False
 
     for line in lines:
-        if (line[0:3] == '```'):
-            if (not in_code_block):
+        if line[0:3] == '```':
+            if not in_code_block: # pylint: disable=R1703
                 in_code_block = True
             else:
                 in_code_block = False
             continue
-        if (in_code_block):
+        if in_code_block:
             # do not check code, that's a false positive
             continue
 
-        if (len(line) == 0):
+        if len(line) == 0:
             last_line_is_header = False
             last_header_line = ""
-        elif (line[0:1] != '#' and last_line_is_header):
+        elif line[0:1] != '#' and last_line_is_header:
             # last line was a header, this line is not empty
             log_entries.append("Missing empty line after header")
             log_entries.append("  Use 'skip_empty_line_after_header' in 'suppresswarnings' to silence this warning")
             log_entries.append("  Header: {h}".format(h = last_header_line))
 
-        if (line[0:1] == '#'):
+        if line[0:1] == '#':
             last_line_is_header = True
             last_header_line = line
 
@@ -1567,13 +1652,15 @@ def check_empty_line_after_header(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_empty_line_after_list(config, data, filename, init_frontmatter):
-    global log_entries
+def check_empty_line_after_list(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check for empty lines after a list
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_list', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_empty_line_after_list', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
 
@@ -1581,24 +1668,24 @@ def check_empty_line_after_list(config, data, filename, init_frontmatter):
     in_code_block = False
 
     for line in lines:
-        if (line[0:3] == '```'):
-            if (not in_code_block):
+        if line[0:3] == '```':
+            if not in_code_block: # pylint: disable=R1703
                 in_code_block = True
             else:
                 in_code_block = False
             continue
-        if (in_code_block):
+        if in_code_block:
             # do not check code, that's a false positive
             continue
 
-        if (len(line) == 0):
+        if len(line) == 0:
             last_line_is_list = False
-        elif (not line_is_list(line) and last_line_is_list):
+        elif not line_is_list(line) and last_line_is_list:
             # last line was a list, this line is not empty
             log_entries.append("Missing empty line after list")
             log_entries.append("  Use 'skip_empty_line_after_list' in 'suppresswarnings' to silence this warning")
 
-        if (line_is_list(line)):
+        if line_is_list(line):
             last_line_is_list = True
 
     return data
@@ -1615,13 +1702,15 @@ def check_empty_line_after_list(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_empty_line_after_code(config, data, filename, init_frontmatter):
-    global log_entries
+def check_empty_line_after_code(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check for empty lines after code blocks
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_empty_line_after_code', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_empty_line_after_code', filename):
         return data
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     lines = body.splitlines()
 
@@ -1629,14 +1718,14 @@ def check_empty_line_after_code(config, data, filename, init_frontmatter):
     last_line_ends_code_block = False
 
     for line in lines:
-        if (last_line_ends_code_block and len(line) > 0):
+        if last_line_ends_code_block and len(line) > 0:
             log_entries.append("Missing empty line after code block")
             log_entries.append("  Use 'skip_empty_line_after_code' in 'suppresswarnings' to silence this warning")
 
-        if (line[0:3] == '```' and not in_code_block):
+        if line[0:3] == '```' and not in_code_block:
             in_code_block = True
             continue
-        if (line == '```' and in_code_block):
+        if line == '```' and in_code_block:
             in_code_block = False
             last_line_ends_code_block = True
             continue
@@ -1657,14 +1746,16 @@ def check_empty_line_after_code(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_forbidden_words(config, data, filename, init_frontmatter):
-    global log_entries
+def check_forbidden_words(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check for forbidden words in the posting
+    """
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
     for fb in config.checks['forbidden_words']:
-        if (fb in body):
-            if (not suppresswarnings(frontmatter, 'skip_forbidden_words_' + fb, filename)):
+        if fb in body:
+            if not suppresswarnings(frontmatter, 'skip_forbidden_words_' + fb, filename):
                 log_entries.append("Found forbidden word: {t}".format(t = fb))
                 log_entries.append("  Use 'skip_forbidden_words_{t}' in 'suppresswarnings' to silence this warning".format(t = fb))
 
@@ -1682,8 +1773,10 @@ def check_forbidden_words(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_forbidden_websites(config, data, filename, init_frontmatter):
-    global log_entries
+def check_forbidden_websites(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check for forbidden websites in the posting
+    """
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
 
@@ -1691,23 +1784,23 @@ def check_forbidden_websites(config, data, filename, init_frontmatter):
         found_fw = False
 
         link = 'https://' + fw + '/'
-        if (fw in body):
+        if link in body:
             found_fw = True
 
         link = 'https://' + fw
-        if (fw in body):
+        if link in body:
             found_fw = True
 
         link = 'http://' + fw + '/'
-        if (fw in body):
+        if link in body:
             found_fw = True
 
         link = 'http://' + fw
-        if (fw in body):
+        if link in body:
             found_fw = True
 
-        if (found_fw):
-            if (not suppresswarnings(frontmatter, 'skip_forbidden_websites_' + fw, filename)):
+        if found_fw:
+            if not suppresswarnings(frontmatter, 'skip_forbidden_websites_' + fw, filename):
                 log_entries.append("Found forbidden website: {t}".format(t = fw))
                 log_entries.append("  Use 'skip_forbidden_websites_{t}' in 'suppresswarnings' to silence this warning".format(t = fw))
 
@@ -1725,10 +1818,12 @@ def check_forbidden_websites(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_header_field_length(config, data, filename, init_frontmatter):
-    global log_entries
+def check_header_field_length(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if header (frontmatter) fields have at least a certain length
+    """
 
-    frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
     try:
         yml = yaml.safe_load(frontmatter)
     except yaml.YAMLError as e:
@@ -1738,7 +1833,7 @@ def check_header_field_length(config, data, filename, init_frontmatter):
     for hfl in config.checks['header_field_length']:
         f, l = list(hfl.items())[0]
 
-        if (f not in yml):
+        if f not in yml:
             # can't suppress the missing field
             log_entries.append("Missing Frontmatter entry: {f}".format(f = f))
             continue
@@ -1747,8 +1842,8 @@ def check_header_field_length(config, data, filename, init_frontmatter):
             fl = len(yml[f])
         except TypeError:
             fl = 0
-        if (fl < l):
-            if (not suppresswarnings(frontmatter, 'skip_header_field_length_' + f, filename)):
+        if fl < l:
+            if not suppresswarnings(frontmatter, 'skip_header_field_length_' + f, filename):
                 log_entries.append("Frontmatter entry too short: {f} ({fl} < {l} chars): {f}".format(f = f, fl = fl, l = l))
                 log_entries.append("  Use 'skip_header_field_length_{f}' in 'suppresswarnings' to silence this warning".format(f = f))
 
@@ -1766,44 +1861,40 @@ def check_header_field_length(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def check_double_brackets(config, data, filename, init_frontmatter):
-    global log_entries
+def check_double_brackets(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if opening or closing double brackets (parenthesis) appear in the text
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_double_brackets_opening', filename) and
-        suppresswarnings(init_frontmatter, 'skip_double_brackets_closing', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_double_brackets_opening', filename) and suppresswarnings(init_frontmatter, 'skip_double_brackets_closing', filename):
         return data
 
 
     frontmatter, body = split_file_into_frontmatter_and_markdown(data, filename)
-    try:
-        yml = yaml.safe_load(frontmatter)
-    except yaml.YAMLError as e:
-        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
-        sys.exit(1)
 
     lines = body.splitlines()
     in_code_block = False
     body_lines = []
 
     for line in lines:
-        if (line[0:3] == '```'):
-            if (not in_code_block):
+        if line[0:3] == '```':
+            if not in_code_block: # pylint: disable=R1703
                 in_code_block = True
             else:
                 in_code_block = False
-        if (in_code_block):
+        if in_code_block:
             continue
         body_lines.append(line)
 
     body = "".join(body_lines)
 
-    if ('((' in body):
-        if (not suppresswarnings(frontmatter, 'skip_double_brackets_opening', filename)):
+    if '((' in body:
+        if not suppresswarnings(frontmatter, 'skip_double_brackets_opening', filename):
             log_entries.append("Found opening double brackets!")
             log_entries.append("  Use 'skip_double_brackets_opening' in 'suppresswarnings' to silence this warning")
 
-    if ('))' in body):
-        if (not suppresswarnings(frontmatter, 'skip_double_brackets_closing', filename)):
+    if '))' in body:
+        if not suppresswarnings(frontmatter, 'skip_double_brackets_closing', filename):
             log_entries.append("Found closing double brackets!")
             log_entries.append("  Use 'skip_double_brackets_closing' in 'suppresswarnings' to silence this warning")
 
@@ -1821,19 +1912,21 @@ def check_double_brackets(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def do_remove_whitespaces_at_end(config, data, filename, init_frontmatter):
-    global log_entries
+def do_remove_whitespaces_at_end(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    removes whitespaces at the end of lines
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_do_remove_whitespaces_at_end', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_do_remove_whitespaces_at_end', filename):
         return data
 
     lines = data.splitlines()
     output = []
     for line in lines:
-        if (len(line) == 0):
+        if len(line) == 0:
             output.append(line)
         else:
-            if (line[0] == '>'):
+            if line[0] == '>':
                 # that's a quote, do not remove spaces at the end
                 output.append(line)
             else:
@@ -1841,7 +1934,7 @@ def do_remove_whitespaces_at_end(config, data, filename, init_frontmatter):
 
     output = "\n".join(output) + "\n"
 
-    if (data != output):
+    if data != output:
         log_entries.append("Removing whitespaces at end of lines")
 
     return output
@@ -1858,10 +1951,12 @@ def do_remove_whitespaces_at_end(config, data, filename, init_frontmatter):
 #  - initial frontmatter copy
 # return:
 #  - (modified) copy of the file content
-def do_replace_broken_links(config, data, filename, init_frontmatter):
-    global log_entries
+def do_replace_broken_links(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    replace broken links in text
+    """
 
-    if (suppresswarnings(init_frontmatter, 'skip_do_replace_broken_links', filename)):
+    if suppresswarnings(init_frontmatter, 'skip_do_replace_broken_links', filename):
         return data
 
     broken_links = config.checks['broken_links']
@@ -1881,7 +1976,7 @@ def do_replace_broken_links(config, data, filename, init_frontmatter):
         orig = 'http://' + l_orig
         output = output.replace(orig, l_replace)
 
-    if (data != output):
+    if data != output:
         log_entries.append("Replacing broken links")
 
     return output
@@ -1893,17 +1988,20 @@ def do_replace_broken_links(config, data, filename, init_frontmatter):
 #######################################################################
 # main
 
-def main():
+def main() -> int:
+    """
+    main function, work on all Markdown files
+    """
     config = Config()
     config.parse_parameters()
     config.read_config()
 
     global_rc = 0
     files = config.files()
-    if (len(files) > 0):
+    if len(files) > 0:
         for f in files:
             rc = handle_markdown_file(config, f)
-            if (rc != 0):
+            if rc != 0:
                 global_rc = 1
     else:
         # find all Markdown files
@@ -1911,18 +2009,18 @@ def main():
         # the 'content' directory can have other entries which are not to be checked
         directories = ["content/post", "content/posts", "content/blog", "content/blogs"]
         for directory in directories:
-            for rootpath, dirs, files in os.walk(directory):
+            for rootpath, _, files in os.walk(directory):
                 for filename in files:
-                    if (not filename.endswith(".md")):
+                    if not filename.endswith(".md"):
                         continue
                     rc = handle_markdown_file(config, os.path.join(rootpath, filename))
-                    if (rc != 0):
+                    if rc != 0:
                         global_rc = 1
 
     return global_rc
 
 
 if __name__ == '__main__':
-    rc = main()
+    rc_main = main()
 
-    sys.exit(rc)
+    sys.exit(rc_main)
