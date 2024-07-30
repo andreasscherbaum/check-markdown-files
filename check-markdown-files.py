@@ -1182,6 +1182,9 @@ def check_missing_cursive(config:Config, data:str, filename:str, init_frontmatte
         elif line.startswith('>'):
             # skip quotes
             pass
+        elif line.startswith('!'):
+            # skip images
+            pass
         else:
             lines2.append(line)
     body = "\n".join(lines2)
