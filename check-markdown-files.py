@@ -17,6 +17,7 @@ from pathlib import Path
 import logging
 import argparse
 from typing import Optional, Dict, Any
+import subprocess
 
 import yaml
 
@@ -1533,6 +1534,49 @@ def check_preview_description(config:Config, data:str, filename:str, init_frontm
     return data
 
 
+# file_is_ignored_in_git()
+#
+# check if a file is ignored in git
+#
+# parameter:
+#  - filename
+# return:
+#  - True: file is ignored
+#  - False: file is not ignored, or not a git repository
+def file_is_ignored_in_git(filename:str) -> bool:
+    """
+    check if a file is ignored in git
+    """
+
+    rc = False
+    try:
+        result = subprocess.run( # pylint: disable=W1510
+            ['git', 'check-ignore', filename],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        return_code = result.returncode
+        if return_code == 0: # pylint: disable=R1703
+            # RC=0 is only set if the file is ignored
+            rc = True
+        else:
+            # RC=1 is set when file is not ignored
+            # RC=128 is set when this is not a git repository
+            rc = False
+        #stdout = result.stdout.strip()
+        stderr = result.stderr.strip()
+        if len(stderr) > 0:
+            # something went wrong
+            rc = False
+
+    except Exception as e: # pylint: disable=W0718,W0612
+        rc = False
+
+    return rc
+
+
 # check_image_size()
 #
 # check if larger images are present
@@ -1569,7 +1613,8 @@ def check_image_size(config:Config, data:str, filename:str, init_frontmatter:str
             this_file = os.path.join(rootdir, this_filename)
             this_stat = os.stat(this_file)
             if this_stat.st_size > max_image_size:
-                found_large_files.append(this_file)
+                if not file_is_ignored_in_git(this_file):
+                    found_large_files.append(this_file)
 
     if len(found_large_files) > 0:
         log_entries.append("Found large images, either resize them or:")
