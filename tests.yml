@@ -789,6 +789,20 @@ check_image_size:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_image_size_forgot_additional_config:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: "check_image_size"
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'check_image_size' is activated, but 'image_size' data is not specified"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 check_image_size_suppressed:
     rc_expected: 0
     cmdoptions: ""
