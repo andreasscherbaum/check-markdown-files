@@ -800,6 +800,47 @@ check_image_size_suppressed:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_image_exif_tags_forbidden:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: "check_image_exif_tags_forbidden"
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Found forbidden EXIF tags in images, either remove them or"
+      - "Use 'skip_image_exif_tags_forbidden' to suppress this warning"
+      - "Image file: tests/check_image_exif_tags_forbidden/test-image.png"
+      - "EXIF tags: Comment"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_image_exif_tags_forgot_additional_config:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: "check_image_exif_tags_forbidden"
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'check_image_exif_tags_forbidden' is activated, but 'forbidden_exif_tags' data is not specified"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_image_exif_tags_forbidden_suppressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: "check_image_exif_tags_forbidden"
+    stdout_expected: False
+    stderr_expected: False
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 check_dass:
     rc_expected: 1
     cmdoptions: ""

@@ -19,6 +19,7 @@ import argparse
 from typing import Optional, Dict, Any
 import subprocess
 
+import json
 import yaml
 
 
@@ -205,6 +206,7 @@ class Config:
         self.checks['check_preview_thumbnail'] = False
         self.checks['check_preview_description'] = False
         self.checks['check_image_size'] = False
+        self.checks['check_image_exif_tags_forbidden'] = False
         self.checks['check_dass'] = False
         self.checks['check_empty_line_after_header'] = False
         self.checks['check_empty_line_after_list'] = False
@@ -375,6 +377,16 @@ class Config:
                 logging.error("Image size ('image_size') is not an integer!")
                 sys.exit(1)
 
+        # forbidden EXIF tags in images
+        if self.checks['check_image_exif_tags_forbidden']:
+            if 'forbidden_exif_tags' not in config_data:
+                logging.error("'check_image_exif_tags_forbidden' is activated, but 'forbidden_exif_tags' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['forbidden_exif_tags'], list):
+                logging.error("'forbidden_exif_tags' must be a list!")
+                sys.exit(1)
+            self.checks['forbidden_exif_tags'] = config_data['forbidden_exif_tags']
+
         # list of header fields which must have a certain length
         if self.checks['check_header_field_length']:
             if 'header_field_length' not in config_data:
@@ -515,6 +527,9 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_image_size']:
         output = check_image_size(config, output, filename, frontmatter)
+
+    if config.checks['check_image_exif_tags_forbidden']:
+        output = check_image_exif_tags_forbidden(config, output, filename, frontmatter)
 
     if config.checks['check_dass']:
         output = check_dass(config, output, filename, frontmatter)
@@ -677,6 +692,49 @@ def line_is_list(line:str) -> bool:
     list_pattern = re.compile(r'^\s*([-*+]|\d+\.)\s+.*', re.MULTILINE)
 
     return bool(list_pattern.match(line))
+
+
+# get_exif_data_from_image()
+#
+# reads all EXIF data from a picture using exiftool
+#
+# parameter:
+#  - path to the image file
+# return:
+#  - dictionary with EXIF data
+def get_exif_data_from_image(image_path: str) -> Dict[str, Any]:
+    """
+    reads all EXIF data from a picture using exiftool
+
+    Args:
+    - image_path (str): path to the image file
+
+    Returns:
+    - dict: dictionary containing all EXIF data
+    """
+
+    try:
+        result = subprocess.run( # pylint: disable=W1510
+            ['exiftool', '-json', image_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        if result.returncode != 0:
+            raise Exception(f"Error running exiftool: {result.stderr.strip()}") # pylint: disable=W0719
+
+        exif_data = json.loads(result.stdout)
+
+        # exiftool returns a list of dictionaries
+        # we only need the first one
+        if exif_data:
+            return exif_data[0]
+        return {}
+
+    except Exception as e: # pylint: disable=W0718
+        print(f"An error occurred: {e}")
+        return {}
 
 
 #######################################################################
@@ -1621,6 +1679,74 @@ def check_image_size(config:Config, data:str, filename:str, init_frontmatter:str
         log_entries.append("  Use 'skip_image_size' to suppress this warning")
         for n in found_large_files:
             log_entries.append("  Large file: {lf}".format(lf = n))
+
+    return data
+
+
+# check_image_exif_tags_forbidden()
+#
+# check if EXIF image tags are in the image which must be excluded
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_image_exif_tags_forbidden(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613, R0912, R0914
+    """
+    check if EXIF image tags are in the image which must be excluded
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_image_exif_tags_forbidden', filename):
+        return data
+
+    # this scans the same directory as the Markdown file
+    # and therefore only works for Hugo Page Bundles
+    # https://gohugo.io/content-management/page-bundles/
+    # this does not scan the static directory
+
+    forbidden_exif_tags = config.checks['forbidden_exif_tags']
+
+    dirname = os.path.dirname(filename)
+    found_image_files = []
+    found_images_with_exif_tags = []
+    found_exif_tags = []
+    for rootdir, _, filenames in os.walk(dirname):
+        for this_filename in filenames:
+            if rootdir != dirname:
+                # only want files in the same directory
+                continue
+            this_file = os.path.join(rootdir, this_filename)
+            if not (this_file.endswith('.jpg') or
+                    this_file.endswith('.jpeg') or
+                    this_file.endswith('.png') or
+                    this_file.endswith('.webp')):
+                continue
+            if not file_is_ignored_in_git(this_file):
+                found_image_files.append(this_file)
+
+    if len(found_image_files) > 0:
+        # these images are not ignored in git
+        for n in found_image_files:
+            exif_tags = get_exif_data_from_image(n)
+            exif_tags_found = False
+            for t in forbidden_exif_tags:
+                if t in exif_tags:
+                    exif_tags_found = True
+                    found_exif_tags.append(t)
+            if exif_tags_found:
+                found_images_with_exif_tags.append(n)
+
+    if len(found_images_with_exif_tags) > 0:
+        log_entries.append("Found forbidden EXIF tags in images, either remove them or:")
+        log_entries.append("  Use 'skip_image_exif_tags_forbidden' to suppress this warning")
+        for n in found_images_with_exif_tags:
+            log_entries.append("  Image file: {lf}".format(lf = n))
+        found_exif_tags = list(set(found_exif_tags))
+        found_exif_tags.sort()
+        log_entries.append("  EXIF tags: {et}".format(et = ", ".join(found_exif_tags)))
 
     return data
 
