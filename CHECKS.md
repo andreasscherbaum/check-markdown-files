@@ -478,6 +478,21 @@ suppresswarnings:
 - skip_double_brackets_closing
 ```
 
+## check_fixme
+
+This check find `FIXME` texts (in upper and lower case) in the blog posting. Example:
+
+```
+check_fixme: True
+```
+
+Disable this check locally with:
+
+```
+suppresswarnings:
+- skip_fixme
+```
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.

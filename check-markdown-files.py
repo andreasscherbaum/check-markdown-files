@@ -215,6 +215,7 @@ class Config:
         self.checks['check_forbidden_websites'] = False
         self.checks['check_header_field_length'] = False
         self.checks['check_double_brackets'] = False
+        self.checks['check_fixme'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -554,6 +555,9 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_double_brackets']:
         output = check_double_brackets(config, output, filename, frontmatter)
+
+    if config.checks['check_fixme']:
+        output = check_fixme(config, output, filename, frontmatter)
 
     if config.checks['do_remove_whitespaces_at_end']:
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -2089,6 +2093,36 @@ def check_double_brackets(config:Config, data:str, filename:str, init_frontmatte
         if not suppresswarnings(frontmatter, 'skip_double_brackets_closing', filename):
             log_entries.append("Found closing double brackets!")
             log_entries.append("  Use 'skip_double_brackets_closing' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_fixme()
+#
+# check if FIXME texts appear in the text
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_fixme(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if FIXME texts appear in the text
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_fixme', filename):
+        return data
+
+
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
+
+    body_lower = body.lower()
+    if 'fixme' in body_lower:
+        log_entries.append("Found FIXME in text!")
+        log_entries.append("  Use 'skip_fixme' in 'suppresswarnings' to silence this warning")
 
     return data
 

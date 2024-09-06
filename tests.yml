@@ -1210,6 +1210,32 @@ check_double_brackets_suppressed:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_fixme:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 3
+    stdout_must_include:
+      - "Found FIXME in text"
+      - "Use 'skip_fixme' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_fixme_suppressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 do_remove_whitespaces_at_end:
     rc_expected: 1
     cmdoptions: ""
