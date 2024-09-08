@@ -298,6 +298,8 @@ class Config:
                 logging.error("'missing_words' must be a list!")
                 sys.exit(1)
             self.checks['missing_words'] = config_data['missing_words']
+            if 'missing_words_include' in config_data:
+                self.checks['missing_words'] = self.include_missing_words(self.checks['missing_words'], config_data['missing_words_include'])
 
         # tuple of tags where the second tag must exist if the first one is specified
         if self.checks['check_missing_other_tags_one_way']:
@@ -454,6 +456,29 @@ class Config:
                 print(f"Error reading YAML file: {e}")
 
         return missing_tags
+
+
+    def include_missing_words(self, missing_words: list[str], missing_words_include: Optional[Path]) -> list[str]:
+        """
+        Read 'missing_words' from a file
+        """
+
+        # need the filename relative to the original configfile
+        filename = os.path.join(os.path.dirname(os.path.realpath(self.arguments.configfile)), missing_words_include)
+
+        if not os.path.exists(filename):
+            logging.error("File '{f}' does not exist!".format(f = filename))
+            sys.exit(1)
+
+        with open(filename, 'r', encoding="utf-8") as file:
+            try:
+                data = yaml.safe_load(file)
+                for entry in data:
+                    missing_words.append(entry)
+            except yaml.YAMLError as e:
+                print(f"Error reading YAML file: {e}")
+
+        return missing_words
 
 
 # end Config class

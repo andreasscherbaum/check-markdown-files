@@ -304,6 +304,50 @@ check_missing_words_as_tags:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_missing_words_as_tags_no_list:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'missing_words' must be a list"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_missing_words_as_tags_include_invalid:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include: 
+      - "/tests/check_missing_words_include_invalid-words.conf' does not exist"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_missing_words_as_tags_include:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "'berlin' tag is missing"
+      - "Use 'skip_missing_words_berlin' in 'suppresswarnings' to silence this warning"
+      - "'backup' tag is missing"
+      - "Use 'skip_missing_words_backup' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 check_missing_words_as_tags_partial_suppressed:
     rc_expected: 1
     cmdoptions: ""

@@ -125,7 +125,9 @@ suppresswarnings:
 - skip_missing_words_berlin
 ```
 
-The example file `check-markdown-files.conf` in this repository comes with a long list of country and city names already filled in.
+It is possible to read the `missing_words` from a configfile specified in `missing_words_include`. The `missing_words` setting is still required, but can be an empty list.
+
+The example file `check-markdown-files-include_missing_words.conf` in this repository comes with a long list of country and city names already filled in.
 
 ## check_invalid_tags
 
