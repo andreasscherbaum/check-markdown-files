@@ -342,6 +342,8 @@ class Config:
                 logging.error("'missing_cursive' must be a list!")
                 sys.exit(1)
             self.checks['missing_cursive'] = config_data['missing_cursive']
+            if 'missing_cursive_include' in config_data:
+                self.checks['missing_cursive'] = self.include_missing_cursive(self.checks['missing_cursive'], config_data['missing_cursive_include'])
 
         # list of words which are forbidden in postings
         if self.checks['check_forbidden_words']:
@@ -479,6 +481,29 @@ class Config:
                 print(f"Error reading YAML file: {e}")
 
         return missing_words
+
+
+    def include_missing_cursive(self, missing_cursive: list[str], missing_cursive_include: Optional[Path]) -> list[str]:
+        """
+        Read 'missing_cursive' from a file
+        """
+
+        # need the filename relative to the original configfile
+        filename = os.path.join(os.path.dirname(os.path.realpath(self.arguments.configfile)), missing_cursive_include)
+
+        if not os.path.exists(filename):
+            logging.error("File '{f}' does not exist!".format(f = filename))
+            sys.exit(1)
+
+        with open(filename, 'r', encoding="utf-8") as file:
+            try:
+                data = yaml.safe_load(file)
+                for entry in data:
+                    missing_cursive.append(entry)
+            except yaml.YAMLError as e:
+                print(f"Error reading YAML file: {e}")
+
+        return missing_cursive
 
 
 # end Config class

@@ -213,6 +213,10 @@ suppresswarnings:
 - skip_missing_cursive_Ansible
 ```
 
+It is possible to read the `missing_cursive` from a configfile specified in `missing_cursive_include`. The `missing_cursive` setting is still required, but can be an empty list.
+
+The example file `check-markdown-files-include_missing_cursive.conf` in this repository comes with a few examples already filled in.
+
 ## check_http_link
 
 This check ensures that all links use `https` instead of `http`.

@@ -516,6 +516,50 @@ check_missing_cursive:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_missing_cursive_no_list:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'missing_cursive' must be a list"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_missing_cursive_include_invalid:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include: 
+      - "/tests/check_missing_cursive_include_invalid-cursive.conf' does not exist"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_missing_cursive_include:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Found non-cursive token: PostgreSQL"
+      - "Use 'skip_missing_cursive_PostgreSQL' in 'suppresswarnings' to silence this warning"
+      - "Found non-cursive token: PostGIS"
+      - "Use 'skip_missing_cursive_PostGIS' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 check_missing_cursive_partially_suppressed:
     rc_expected: 1
     cmdoptions: ""
