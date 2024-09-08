@@ -286,6 +286,8 @@ class Config:
                 else:
                     logging.error("Both 'word' and 'tag' must be specified in 'missing_tags'!")
                     sys.exit(1)
+            if 'missing_tags_include' in config_data:
+                self.checks['missing_tags'] = self.include_missing_tags(self.checks['missing_tags'], config_data['missing_tags_include'])
 
         # missing words as tags needs a list of words
         if self.checks['check_missing_words_as_tags']:
@@ -419,12 +421,39 @@ class Config:
                     logging.error("Data: {d}".format(d = str(data)))
                     sys.exit(1)
 
+
     def files(self) -> list[str]:
         """
         Return the list of remaining command line arguments (files)
         """
 
         return self.arguments.remainder
+
+
+    def include_missing_tags(self, missing_tags: list[str], missing_tags_include: Optional[Path]) -> list[str]:
+        """
+        Read 'missing_tags' from a file
+        """
+
+        # need the filename relative to the original configfile
+        filename = os.path.join(os.path.dirname(os.path.realpath(self.arguments.configfile)), missing_tags_include)
+
+        if not os.path.exists(filename):
+            logging.error("File '{f}' does not exist!".format(f = filename))
+            sys.exit(1)
+
+        with open(filename, 'r', encoding="utf-8") as file:
+            try:
+                data = yaml.safe_load(file)
+                for entry in data:
+                    word = entry.get('word')
+                    tag = entry.get('tag')
+                    if word and tag:
+                        missing_tags.append([word, tag])
+            except yaml.YAMLError as e:
+                print(f"Error reading YAML file: {e}")
+
+        return missing_tags
 
 
 # end Config class

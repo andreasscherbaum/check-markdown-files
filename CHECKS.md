@@ -98,7 +98,9 @@ suppresswarnings:
 - skip_missing_tags_raspberry-pi
 ```
 
-The example file `check-markdown-files.conf` in this repository comes with a long list of country and city names already filled in.
+It is possible to read the `missing_tags` from a configfile specified in `missing_tags_include`. The `missing_tags` setting is still required, but can be an empty list.
+
+The example file `check-markdown-files-include_missing_tags.conf` in this repository comes with a long list of country and city names already filled in.
 
 ## missing_words_as_tags
 
