@@ -2353,7 +2353,9 @@ def main() -> int:
         # only scan directories where blog postings are expected
         # the 'content' directory can have other entries which are not to be checked
         all_files = []
-        directories = ["content/post", "content/posts", "content/blog", "content/blogs"]
+        directories = ["content/post", "content/posts", "content/blog", "content/blogs",
+                       "content/businesses", "content/places", "content/restaurants",
+                       "content/trips", "content/events"]
         for directory in directories:
             for rootpath, _, files in os.walk(directory):
                 for filename in files:
