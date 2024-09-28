@@ -300,6 +300,7 @@ class Config:
             self.checks['missing_words'] = config_data['missing_words']
             if 'missing_words_include' in config_data:
                 self.checks['missing_words'] = self.include_missing_words(self.checks['missing_words'], config_data['missing_words_include'])
+            self.checks['missing_words'] = list(set(self.checks['missing_words']))
 
         # tuple of tags where the second tag must exist if the first one is specified
         if self.checks['check_missing_other_tags_one_way']:
@@ -344,6 +345,7 @@ class Config:
             self.checks['missing_cursive'] = config_data['missing_cursive']
             if 'missing_cursive_include' in config_data:
                 self.checks['missing_cursive'] = self.include_missing_cursive(self.checks['missing_cursive'], config_data['missing_cursive_include'])
+            self.checks['missing_cursive'] = list(set(self.checks['missing_cursive']))
 
         # list of words which are forbidden in postings
         if self.checks['check_forbidden_words']:
@@ -354,6 +356,7 @@ class Config:
                 logging.error("'forbidden_words' must be a list!")
                 sys.exit(1)
             self.checks['forbidden_words'] = config_data['forbidden_words']
+            self.checks['forbidden_words'] = list(set(self.checks['forbidden_words']))
 
         # list of websites which are forbidden in postings
         if self.checks['check_forbidden_websites']:
@@ -369,6 +372,7 @@ class Config:
                     logging.error("The link must not include the protocol!")
                     logging.error("Link: {o}".format(o=data))
                     sys.exit(1)
+            self.checks['forbidden_websites'] = list(set(self.checks['forbidden_websites']))
 
         # maximum size for objects in the posting directory
         if self.checks['check_image_size']:
@@ -393,6 +397,7 @@ class Config:
                 logging.error("'forbidden_exif_tags' must be a list!")
                 sys.exit(1)
             self.checks['forbidden_exif_tags'] = config_data['forbidden_exif_tags']
+            self.checks['forbidden_exif_tags'] = list(set(self.checks['forbidden_exif_tags']))
 
         # list of header fields which must have a certain length
         if self.checks['check_header_field_length']:
