@@ -501,6 +501,34 @@ suppresswarnings:
 - skip_fixme
 ```
 
+## check_no_default_values
+
+This chech ensures that headers do not have a default value, indicating that someone forgot to change the header before publishing the posting.
+
+Example:
+
+```
+check_no_default_values: True
+no_default_values:
+  - header: "hashtags"
+    default_value: "#Default #Value "
+  - header: "hashtags"
+    default_value: "#Default #Value"
+  - header: "hashtags"
+    default_value: "#Another #Hashtag"
+  - header: "description"
+    default_value: ""
+```
+
+Every Frontmatter header can appear multiple times, and the value is checked against each entry in `no_default_values`. By using different arechetype templates, it is possible that a header can have different initial (default) values.
+
+Disable this check locally with:
+
+```
+suppresswarnings:
+- skip_no_default_values
+```
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.

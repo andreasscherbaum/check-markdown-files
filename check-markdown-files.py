@@ -216,6 +216,7 @@ class Config:
         self.checks['check_header_field_length'] = False
         self.checks['check_double_brackets'] = False
         self.checks['check_fixme'] = False
+        self.checks['check_no_default_values'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -430,6 +431,22 @@ class Config:
                     logging.error("Data: {d}".format(d = str(data)))
                     sys.exit(1)
 
+        # check for no default values must be a list
+        if self.checks['check_no_default_values']:
+            if 'no_default_values' not in config_data:
+                logging.error("'check_no_default_values' is activated, but 'no_default_values' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['no_default_values'], list):
+                logging.error("'no_default_values' must be a list!")
+                sys.exit(1)
+            self.checks['no_default_values'] = []
+            for data in config_data['no_default_values']:
+                if 'header' in data and 'default_value' in data:
+                    self.checks['no_default_values'].append([data['header'], data['default_value']])
+                else:
+                    logging.error("Both 'header' and 'default_value' must be specified in 'no_default_values'!")
+                    sys.exit(1)
+
 
     def files(self) -> list[str]:
         """
@@ -642,6 +659,9 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_fixme']:
         output = check_fixme(config, output, filename, frontmatter)
+
+    if config.checks['check_no_default_values']:
+        output = check_no_default_values(config, output, filename, frontmatter)
 
     if config.checks['do_remove_whitespaces_at_end']:
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -2211,6 +2231,55 @@ def check_fixme(config:Config, data:str, filename:str, init_frontmatter:str) -> 
     if 'fixme' in body_lower:
         log_entries.append("Found FIXME in text!")
         log_entries.append("  Use 'skip_fixme' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_no_default_values()
+#
+# check if certain headers have not the default value(s)
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_no_default_values(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if certain headers have not the default value(s)
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_no_default_values', filename):
+        return data
+
+
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
+    try:
+        yml = yaml.safe_load(frontmatter)
+    except yaml.YAMLError as e:
+        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
+        sys.exit(1)
+
+    found_warnings = 0
+
+    # loop through the list
+    # check if this Frontmatter header exists
+    # and if it exists, if the value is the second parameter in the list
+    for check in config.checks['no_default_values']:
+        header = check[0]
+        value = check[1]
+
+        if header in yml:
+            if yml[header] == value:
+                log_entries.append("Found Frontmatter '{h}' tag with default value '{v}'".format(h = header, v = value))
+                found_warnings += 1
+
+    if found_warnings > 1:
+        log_entries.append("  Use 'skip_no_default_values' in 'suppresswarnings' to silence these warnings")
+    if found_warnings == 1:
+        log_entries.append("  Use 'skip_no_default_values' in 'suppresswarnings' to silence this warning")
 
     return data
 
