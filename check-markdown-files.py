@@ -777,7 +777,11 @@ def line_is_list(line:str) -> bool:
     find out if the current line is part of a list
     """
 
-    list_pattern = re.compile(r'^\s*([-*+]|\d+\.)\s+.*', re.MULTILINE)
+    # this checks for the following patterns as a list:
+    #  - unsorted lists starting with '-', '*' or '+'
+    #  - sorted lists starting with a number and a dot
+    #  - opening shortcodes (which can include a list item)
+    list_pattern = re.compile(r'^\s*([-*+]|\d+\.|\{\{\%)\s+.*', re.MULTILINE)
 
     return bool(list_pattern.match(line))
 
