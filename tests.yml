@@ -1370,6 +1370,74 @@ check_fixme_suppressed:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+
+
+
+
+check_double_uppercase:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Found double uppercase in text"
+      - "Number of finds: 3"
+      - "Matches: UPPErcasE UPPErcase UPpercase"
+      - "Use 'skip_double_uppercase' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_uppercase_forgot_additional_config:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'check_double_uppercase' is activated, but 'ignore_double_uppercase' data is not specified"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_uppercase_partially_suppressed:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 5
+    stdout_must_include:
+      - "Found double uppercase in text"
+      - "Number of finds: 2"
+      - "Matches: UPPErcase UPpercase"
+      - "Use 'skip_double_uppercase' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_double_uppercase_suppressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+
+
+
+
+
+
 check_no_default_values:
     rc_expected: 1
     cmdoptions: ""

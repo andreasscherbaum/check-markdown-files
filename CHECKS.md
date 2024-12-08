@@ -501,6 +501,34 @@ suppresswarnings:
 - skip_fixme
 ```
 
+## check_double_uppercase
+
+This check test for multiple uppercase letters in words, followed by lowercase letters. Example:
+
+```
+THis was a SHift key mistake.
+```
+
+Unlike what the name implies, the test will find two or more double uppercase letters, followed by at least one lowercase letter.
+
+The most common false positive for this test is escaped URLs, something like: `%C3%BCd`.
+
+
+Disable this check locally with:
+
+```
+suppresswarnings:
+- skip_double_uppercase
+```
+
+Add words to a global ignore list:
+
+```
+check_double_uppercase: True
+ignore_double_uppercase:
+  - UPPErcasE
+```
+
 ## check_no_default_values
 
 This chech ensures that headers do not have a default value, indicating that someone forgot to change the header before publishing the posting.

@@ -216,6 +216,7 @@ class Config:
         self.checks['check_header_field_length'] = False
         self.checks['check_double_brackets'] = False
         self.checks['check_fixme'] = False
+        self.checks['check_double_uppercase'] = False
         self.checks['check_no_default_values'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
@@ -430,6 +431,17 @@ class Config:
                     logging.error("Unknown error!")
                     logging.error("Data: {d}".format(d = str(data)))
                     sys.exit(1)
+
+        # check for double uppercase letters ignore list
+        if self.checks['check_double_uppercase']:
+            if 'ignore_double_uppercase' not in config_data:
+                logging.error("'check_double_uppercase' is activated, but 'ignore_double_uppercase' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['ignore_double_uppercase'], list):
+                logging.error("'ignore_double_uppercase' must be a list!")
+                sys.exit(1)
+            self.checks['ignore_double_uppercase'] = config_data['ignore_double_uppercase']
+            self.checks['ignore_double_uppercase'] = list(set(self.checks['ignore_double_uppercase']))
 
         # check for no default values must be a list
         if self.checks['check_no_default_values']:
@@ -659,6 +671,9 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_fixme']:
         output = check_fixme(config, output, filename, frontmatter)
+
+    if config.checks['check_double_uppercase']:
+        output = check_double_uppercase(config, output, filename, frontmatter)
 
     if config.checks['check_no_default_values']:
         output = check_no_default_values(config, output, filename, frontmatter)
@@ -2231,6 +2246,57 @@ def check_fixme(config:Config, data:str, filename:str, init_frontmatter:str) -> 
     if 'fixme' in body_lower:
         log_entries.append("Found FIXME in text!")
         log_entries.append("  Use 'skip_fixme' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_double_uppercase()
+#
+# check if tho uppercase letters, followed by lowercase letters appear in the text
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_double_uppercase(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if tho uppercase letters, followed by lowercase letters appear in the text
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_double_uppercase', filename):
+        return data
+
+
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
+
+    pattern = r'\b([A-ZÄÖÜß]{2,}[a-zäöüß][a-zA-Z0-9äÄöÖüÜß]*)'
+    matches = re.findall(pattern, body)
+
+    filtered_list = []
+    for entry in matches:
+        if entry not in config.checks['ignore_double_uppercase']:
+            filtered_list.append(entry)
+
+    filtered_list = sorted(set(filtered_list))
+
+    num_matches = len(filtered_list)
+    first_five = " ".join(filtered_list[:5])
+
+    # Note: would be nice to exclude all matches inside of the link part of links
+    # aka: [...](https://.../%SOme%MAtch/for/escaping)
+    # but it is hard to match just links without fully parsing the document
+
+    if num_matches > 0:
+        log_entries.append("Found double uppercase in text!")
+        log_entries.append("  Number of finds: {n}".format(n = num_matches))
+        if num_matches < 6:
+            log_entries.append("  Matches: {t}".format(t = first_five))
+        else:
+            log_entries.append("  First 5 matches: {t}".format(t = first_five))
+        log_entries.append("  Use 'skip_double_uppercase' in 'suppresswarnings' to silence this warning")
 
     return data
 
