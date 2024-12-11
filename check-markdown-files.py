@@ -2339,7 +2339,7 @@ def check_no_default_values(config:Config, data:str, filename:str, init_frontmat
 
         if header in yml:
             if yml[header] == value:
-                log_entries.append("Found Frontmatter '{h}' tag with default value '{v}'".format(h = header, v = value))
+                log_entries.append("Found Frontmatter '{h}' field with default value '{v}'".format(h = header, v = value))
                 found_warnings += 1
 
     if found_warnings > 1:
