@@ -557,6 +557,49 @@ suppresswarnings:
 - skip_no_default_values
 ```
 
+## check_images_exist_posting
+
+This check ensures that all (local) images referenced in blog postings exist.
+
+Example:
+
+```
+check_images_exist_posting: True
+```
+
+All image pathnames with a `/` are ignored, this check only works on bundles where both the Markdown and the images reside in the same directory.
+
+Disable this check locally with:
+
+```
+suppresswarnings:
+- skip_check_images_exist_posting
+```
+
+## check_images_exist_frontmatter
+
+This check ensures that all (local) images referenced in the Frontmatter of the blog postings exist.
+
+Example:
+
+```
+check_images_exist_frontmatter: True
+frontmatter_image_fields:
+  - thumbnail
+  - preview
+```
+
+`frontmatter_image_fields` specifies the Frontmatter fields which are used to check for image names.
+
+All image pathnames with a `/` are ignored, this check only works on bundles where both the Markdown and the images reside in the same directory.
+
+Disable this check locally with:
+
+```
+suppresswarnings:
+- skip_check_images_exist_frontmatter
+```
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.

@@ -218,6 +218,8 @@ class Config:
         self.checks['check_fixme'] = False
         self.checks['check_double_uppercase'] = False
         self.checks['check_no_default_values'] = False
+        self.checks['check_images_exist_posting'] = False
+        self.checks['check_images_exist_frontmatter'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -459,6 +461,16 @@ class Config:
                     logging.error("Both 'header' and 'default_value' must be specified in 'no_default_values'!")
                     sys.exit(1)
 
+        # Frontmatter fields with images
+        if self.checks['check_images_exist_frontmatter']:
+            if 'frontmatter_image_fields' not in config_data:
+                logging.error("'check_images_exist_frontmatter' is activated, but 'frontmatter_image_fields' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['frontmatter_image_fields'], list):
+                logging.error("'frontmatter_image_fields' must be a list!")
+                sys.exit(1)
+            self.checks['frontmatter_image_fields'] = config_data['frontmatter_image_fields']
+
 
     def files(self) -> list[str]:
         """
@@ -677,6 +689,12 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_no_default_values']:
         output = check_no_default_values(config, output, filename, frontmatter)
+
+    if config.checks['check_images_exist_posting']:
+        output = check_images_exist_posting(config, output, filename, frontmatter)
+
+    if config.checks['check_images_exist_frontmatter']:
+        output = check_images_exist_frontmatter(config, output, filename, frontmatter)
 
     if config.checks['do_remove_whitespaces_at_end']:
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -2346,6 +2364,131 @@ def check_no_default_values(config:Config, data:str, filename:str, init_frontmat
         log_entries.append("  Use 'skip_no_default_values' in 'suppresswarnings' to silence these warnings")
     if found_warnings == 1:
         log_entries.append("  Use 'skip_no_default_values' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_images_exist_posting()
+#
+# check if (local) images referenced in the blog posting exist
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_images_exist_posting(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if (local) images referenced in the blog posting exist
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_check_images_exist_posting', filename):
+        return data
+
+
+    _, body = split_file_into_frontmatter_and_markdown(data, filename)
+
+    lines = body.splitlines()
+    #re_image_pattern = re.compile(r'!\[.*?\]\((.*?)\)')
+    re_image_pattern = re.compile(r'!\[.*?\]\((\S+?)(?:\s+["\'].*?["\'])?\)')
+    image_filenames = []
+
+    found_warnings = 0
+
+    for line in lines:
+        match = re_image_pattern.search(line)
+        if match:
+            image_path = match.group(1)
+            image_filenames.append(image_path)
+
+    if not image_filenames:
+        return data
+
+    dirname = os.path.dirname(filename)
+
+    for image in image_filenames:
+        if "/" in image:
+            # do not handle URLs, or files with directory names
+            continue
+
+        if not os.path.exists(os.path.join(dirname, image)):
+            log_entries.append("Image '{i}' is missing in '{d}'".format(i = image, d = dirname))
+            found_warnings += 1
+
+    if found_warnings > 1:
+        log_entries.append("  Use 'skip_check_images_exist_posting' in 'suppresswarnings' to silence these warnings")
+    if found_warnings == 1:
+        log_entries.append("  Use 'skip_check_images_exist_posting' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_images_exist_frontmatter()
+#
+# check if (local) images referenced in the frontmatter of the blog posting exist
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_images_exist_frontmatter(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if (local) images referenced in the frontmatter of the blog posting exist
+    """
+
+    if suppresswarnings(init_frontmatter, 'skip_check_images_exist_frontmatter', filename):
+        return data
+
+
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
+    try:
+        yml = yaml.safe_load(frontmatter)
+    except yaml.YAMLError as e:
+        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
+        sys.exit(1)
+
+    image_filenames = []
+
+    found_warnings = 0
+
+    for check in config.checks['frontmatter_image_fields']:
+        if check not in yml:
+            # this field does not exist, skip it
+            continue
+
+        try:
+            fl = len(yml[check])
+        except TypeError:
+            fl = 0
+        if fl < 1:
+            # field not set
+            continue
+
+        image_filenames.append(yml[check])
+
+    if not image_filenames:
+        return data
+
+    dirname = os.path.dirname(filename)
+
+    for image in image_filenames:
+        if "/" in image:
+            # do not handle URLs, or files with directory names
+            continue
+
+        if not os.path.exists(os.path.join(dirname, image)):
+            log_entries.append("Image '{i}' is missing in '{d}'".format(i = image, d = dirname))
+            found_warnings += 1
+
+    if found_warnings > 1:
+        log_entries.append("  Use 'skip_check_images_exist_frontmatter' in 'suppresswarnings' to silence these warnings")
+    if found_warnings == 1:
+        log_entries.append("  Use 'skip_check_images_exist_frontmatter' in 'suppresswarnings' to silence this warning")
 
     return data
 

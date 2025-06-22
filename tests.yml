@@ -1468,6 +1468,78 @@ check_no_default_values_suppressed:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_images_exist_posting:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 7
+    stdout_must_include:
+      - "Image 'image1.jpg' is missing in 'tests'"
+      - "Image 'image2.jpg' is missing in 'tests'"
+      - "Image 'image3.jpg' is missing in 'tests'"
+      - "Image 'image4.jpg' is missing in 'tests'"
+      - "Image 'image5.jpg' is missing in 'tests'"
+      - "Use 'skip_check_images_exist_posting' in 'suppresswarnings' to silence these warnings"
+    stderr_must_include: []
+    stdout_must_not_include:
+      - "Image 'image6.jpg' is missing in 'tests'"
+      - "Image 'image7.jpg' is missing in 'tests'"
+    stderr_must_not_include: []
+
+check_images_exist_posting_suppressed:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_images_exist_frontmatter:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 3
+    stdout_must_include:
+      - "Image 'thumbnail.jpg' is missing in 'tests'"
+      - "Use 'skip_check_images_exist_frontmatter' in 'suppresswarnings' to silence this warning"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_images_exist_frontmatter_forgot_additional_config:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'check_images_exist_frontmatter' is activated, but 'frontmatter_image_fields' data is not specified"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_images_exist_posting_frontmatter:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 do_remove_whitespaces_at_end:
     rc_expected: 1
     cmdoptions: ""
