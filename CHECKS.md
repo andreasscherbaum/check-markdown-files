@@ -169,7 +169,7 @@ suppresswarnings:
 
 ## check_missing_other_tags_both_ways
 
-This chech ensures that if one tag is specified, a second tag is also specified. This makes most sense when different variations of tags should all be inluded.
+This check ensures that if one tag is specified, a second tag is also specified. This makes most sense when different variations of tags should all be inluded.
 
 Example:
 
@@ -531,7 +531,7 @@ ignore_double_uppercase:
 
 ## check_no_default_values
 
-This chech ensures that headers do not have a default value, indicating that someone forgot to change the header before publishing the posting.
+This check ensures that headers do not have a default value, indicating that someone forgot to change the header before publishing the posting.
 
 Example:
 
