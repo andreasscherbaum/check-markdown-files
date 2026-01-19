@@ -220,6 +220,7 @@ class Config:
         self.checks['check_no_default_values'] = False
         self.checks['check_images_exist_posting'] = False
         self.checks['check_images_exist_frontmatter'] = False
+        self.checks['check_empty_lists'] = False
         self.checks['do_remove_whitespaces_at_end'] = False
         self.checks['do_replace_broken_links'] = False
 
@@ -471,6 +472,19 @@ class Config:
                 sys.exit(1)
             self.checks['frontmatter_image_fields'] = config_data['frontmatter_image_fields']
 
+        # list of header fields which as a list must not be empty
+        if self.checks['check_empty_lists']:
+            if 'header_empty_lists' not in config_data:
+                logging.error("'check_empty_lists' is activated, but 'header_empty_lists' data is not specified!")
+                sys.exit(1)
+            if not isinstance(config_data['header_empty_lists'], list):
+                logging.error("'header_empty_lists' must be a list!")
+                sys.exit(1)
+            if len(config_data['header_empty_lists']) == 0:
+                logging.error("'header_empty_lists' must not be empty!")
+                sys.exit(1)
+            self.checks['header_empty_lists'] = config_data['header_empty_lists']
+
 
     def files(self) -> list[str]:
         """
@@ -695,6 +709,9 @@ def handle_markdown_file(config:str, filename:str) -> int: # pylint: disable=R09
 
     if config.checks['check_images_exist_frontmatter']:
         output = check_images_exist_frontmatter(config, output, filename, frontmatter)
+
+    if config.checks['check_empty_lists']:
+        output = check_empty_lists(config, output, filename, frontmatter)
 
     if config.checks['do_remove_whitespaces_at_end']:
         output = do_remove_whitespaces_at_end(config, output, filename, frontmatter)
@@ -2489,6 +2506,54 @@ def check_images_exist_frontmatter(config:Config, data:str, filename:str, init_f
         log_entries.append("  Use 'skip_check_images_exist_frontmatter' in 'suppresswarnings' to silence these warnings")
     if found_warnings == 1:
         log_entries.append("  Use 'skip_check_images_exist_frontmatter' in 'suppresswarnings' to silence this warning")
+
+    return data
+
+
+# check_empty_lists()
+#
+# check if specified header fields are a list and not empty
+#
+# parameter:
+#  - config handle
+#  - copy of the file content
+#  - filename
+#  - initial frontmatter copy
+# return:
+#  - (modified) copy of the file content
+def check_empty_lists(config:Config, data:str, filename:str, init_frontmatter:str) -> str: # pylint: disable=W0613
+    """
+    check if specified header fields are a list and not empty
+    """
+
+    # not possible to skip this check
+    # this might cause problems in templates
+    # just not creating an empty list will solve the problem
+
+    frontmatter, _ = split_file_into_frontmatter_and_markdown(data, filename)
+
+    try:
+        yml = yaml.safe_load(frontmatter)
+    except yaml.YAMLError as e:
+        logging.error("Error parsing frontmatter in {f}: {e}".format(f = filename, e = e))
+        sys.exit(1)
+
+    # already checked that this is a list, and it is not empty
+    for entry in config.checks['header_empty_lists']:
+        try:
+            header_entry = yml[entry]
+        except KeyError:
+            header_entry = None
+        if not header_entry:
+            # ok if the entry does not exist
+            # this also skips if the entry exists, but is empty
+            continue
+
+        if isinstance(header_entry, list):
+            if len(header_entry) == 0:
+                log_entries.append("Frontmatter header '{h}' is empty".format(h = entry))
+            elif None in header_entry:
+                log_entries.append("Frontmatter header '{h}' is empty".format(h = entry))
 
     return data
 

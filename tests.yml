@@ -1540,6 +1540,45 @@ check_images_exist_posting_frontmatter:
     stdout_must_not_include: []
     stderr_must_not_include: []
 
+check_empty_lists:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: True
+    stderr_expected: False
+    stdout_lines_expected: 2
+    stdout_must_include:
+      - "Frontmatter header 'headerfield' is empty"
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_empty_lists_unknown_list:
+    rc_expected: 0
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: False
+    stdout_lines_expected: 0
+    stdout_must_include: []
+    stderr_must_include: []
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
+check_empty_lists_config_empty:
+    rc_expected: 1
+    cmdoptions: ""
+    test_subdirectory: ""
+    stdout_expected: False
+    stderr_expected: True
+    stdout_lines_expected: 0
+    stderr_lines_expected: 1
+    stdout_must_include: []
+    stderr_must_include:
+      - "ERROR: 'header_empty_lists' must be a list"
+    stdout_must_not_include: []
+    stderr_must_not_include: []
+
 do_remove_whitespaces_at_end:
     rc_expected: 1
     cmdoptions: ""

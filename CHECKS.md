@@ -600,6 +600,22 @@ suppresswarnings:
 - skip_check_images_exist_frontmatter
 ```
 
+## check_empty_lists
+
+This check ensures that all specified headers are non-empty lists, if the header exists.
+
+Example:
+
+```
+check_empty_lists: True
+header_empty_lists:
+  - tags
+```
+
+This check can not be disabled locally. Fix the entries by either emptying the list (`[]`), or add values.
+
+Empty list entries will produce a list with `[None]` entries, which may cause problems in templates.
+
 ## do_remove_whitespaces_at_end
 
 Remove whitespaces at the end of lines. This check [excludes quotes](https://andreas.scherbaum.la/post/2024-03-01_blockquotes-in-hugo/), as whitespaces are sometimes necessary there.
